@@ -1,7 +1,7 @@
 # SynPred
-##Full Machine Learning Pipeline for the Synpred prediction and Standalone deployment
+*Full Machine Learning Pipeline for the Synpred prediction and Standalone deployment*
 
-###Deploy the SynPred pipeline
+**Deploy the SynPred pipeline**
 
 Prerequisites:
 1 - conda environment: source activate black
@@ -25,4 +25,4 @@ Scripts:
 7 - DEC_synpred_cass.py - Same as 5, but for single run.
 8 - DEC_analysis.py - gather the gridsearch results and identify the best for each metric
 
-###Standalone Deployment
+**Standalone Deployment**
