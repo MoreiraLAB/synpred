@@ -4,7 +4,7 @@
 **Deploy the SynPred pipeline**
 
 Prerequisites:
-1 - conda environment: source activate black
+1. conda environment: source activate black
 
 Scripts:
 
