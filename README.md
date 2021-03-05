@@ -4,8 +4,15 @@
 **Deploy the SynPred pipeline**
 
 Prerequisites:
-1. conda environment: 
-		source activate black
+To properly run SynPred without interfering the user should setup an isolate conda environment. Please follow the specifications below.
+1. `conda create --name synpred_env python=3.8.2`
+2. conda activate synpred_env
+
+Then, the user needs to install several packages.
+
+3. conda install -c conda-forge rdkit
+4. pip install mordred
+5. pip instal tensorflow==2.31
 
 Steps:
 
