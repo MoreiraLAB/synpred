@@ -5,14 +5,16 @@
 
 Prerequisites:
 To properly run SynPred without interfering the user should setup an isolate conda environment. Please follow the specifications below.
-1. `conda create --name synpred_env python=3.8.2`
-2. conda activate synpred_env
+1. `conda create --name synpred_env python=3.8.2` - There is no problem in changing the environment name, provided the user uses the same name onward, however, the user should use this Python version, as some packages (e.g. Tensorflow) do not have installation support with pip at the timing of writing this tutorial.
+2. `conda activate synpred_env` - All the following steps should be performed in the environment. 
 
 Then, the user needs to install several packages.
 
-3. conda install -c conda-forge rdkit
-4. pip install mordred
-5. pip instal tensorflow==2.31
+3. `conda install -c conda-forge rdkit` - Install rdkit for molecular feature extraction with mordred. 
+4. `pip install mordred` - Install mordred for feature extraction.
+5. `pip install tensorflow==2.3.1` - Install this version of tensorflow.
+6. `pip install scikit-learn` - Scikit-learn is required at many steps of the pipeline. 
+7. `pip install xgboost`- The package to use the Extreme Gradient Boosting methods needs to be installed separately from scikit-learn.
 
 Steps:
 
