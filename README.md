@@ -24,7 +24,6 @@ Steps:
 4. DEC_CCLE_filter.py - run this to generate CCLE subsets.
 	Only the files in "support/CCLE_log_file.csv" will be called.
 	Input and output files at the "datasets" folder.
-
 5. DEC_join_features.py - join the dataset's classes and IDs
 8. DEC_generate_dataset_optimized.py - run to generate dimensionality reduction (PCA) on the CCLE subsets
 	and keep only the cell lines present in the NCI-ALMANAC dataset
