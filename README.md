@@ -9,7 +9,7 @@ To properly run SynPred without interfering the user should setup an isolate con
 
 Then, the user needs to install several packages.
 
-3. `conda install -c conda-forge r-base` - This package is only requried if you are trying to deploy the SynPred pipeline from scratch, and not for the standalone version.
+3. `conda install -c conda-forge r-base` - This package is only required if you are trying to deploy the SynPred pipeline from scratch, and not for the standalone version.
 4. Only for the full SynPred deployment: open R (after step 3) on the command line/terminal:
 	- `if (!requireNamespace("BiocManager", quietly = TRUE))
     	install.packages("BiocManager")`
@@ -29,6 +29,7 @@ After downloading/cloning this repository, there are still some changes to be ma
 1. At `synpred_variables.py`, change the variable `DEFAULT_LOCATION` to the location where you will be running your files
 2. If the folders were not automatically downloaded, create the folders, on the same location as the scripts, with the following names:
 	- CCLE
+	- datasets
 	- evaluation_non_DL
 	- evaluation_summary
 	- molecules

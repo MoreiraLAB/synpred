@@ -1,5 +1,5 @@
 library(synergyfinder)
-numbered_list <- read.csv("~/Desktop/analyse_synergy/oneil_numbered_list.csv")
+
 
 library(progress)
 
@@ -53,5 +53,6 @@ summary_synergy <- function(data_set) {
   return(k)
 }
 
-df_a <- summary_synergy(numbered_list)
-write.csv(df_a,"oneil_calculated_synergy.csv", row.names = FALSE)
+input_file <- read.csv("")
+processed_table <- summary_synergy(input_file)
+write.csv(processed_table,"NCI_ALMANAC_synergy_example.csv", row.names = FALSE)
