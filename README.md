@@ -17,9 +17,10 @@ Then, the user needs to install several packages:
     - `library(synergyfinder)` - Check if the package was properly installed.
 3. `conda install -c conda-forge rdkit` - Install rdkit for molecular feature extraction with mordred. 
 4. `pip install mordred` - Install mordred for feature extraction.
-5. `pip install tensorflow==2.3.1` - Install this version of tensorflow.
-6. `pip install scikit-learn` - Scikit-learn is required at many steps of the pipeline. 
-7. `pip install xgboost`- The package to use the Extreme Gradient Boosting methods needs to be installed separately from scikit-learn.
+5. `pip install pubchempy` - Install pubchempy to download SMILE from name.
+6. `pip install tensorflow==2.3.1` - Install this version of tensorflow.
+7. `pip install scikit-learn` - Scikit-learn is required at many steps of the pipeline. 
+8. `pip install xgboost`- The package to use the Extreme Gradient Boosting methods needs to be installed separately from scikit-learn.
 
 **Changes**
 
@@ -32,6 +33,7 @@ After downloading/cloning this repository, there are still some changes to be ma
 	- evaluation_summary
 	- molecules
 	- redeployment_variables
+	- resources
 	- results
 	- saved_model
 	- support
@@ -42,6 +44,7 @@ After downloading/cloning this repository, there are still some changes to be ma
 1. `synpred_variables.py` - most of the variables are stored in here (paths, table variables, etc).
 2. `synpred_support_functions.py` - several functions that will be present in more than one script.
 3. `syn_find_synergy.R` - Use R with `synergyfinder` package to attain the classification with the different metrics.
+4. `synpred_retrieve_smiles.py` - Use `pubchempy` to download the smile into the `molecules`folder.
 4. `synpred_edit_dataset.py` - start by editing the dataset to generate the full-agreement class and the properly scaled features.
 5. `synpred_CCLE_filter.py` - run this to generate CCLE subsets.
 	Only the files in "support/CCLE_log_file.csv" will be called.

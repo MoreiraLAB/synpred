@@ -3,8 +3,6 @@
 
 """
 Edit the dataset to include full-agreement column and normalized (by mean and standard deviation) drug features 
-conda activate tf
-tensorflow version 1.15
 """
 
 __author__ = "A.J. Preto"
