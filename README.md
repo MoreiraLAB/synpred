@@ -9,14 +9,12 @@ To properly run SynPred without interfering the user should setup an isolate con
 
 Then, the user needs to install several packages:
 
-3. `conda install -c conda-forge r-base` - This package is only required if you are trying to deploy the SynPred pipeline from scratch, and not for the standalone version.
+3. `conda install -c conda-forge r-base=3.6.3` - Using R is only required if you are trying to deploy the SynPred pipeline from scratch, and not for the standalone version. If you are going to deploy the full pipeline, make sure to install this specific version of R, as others might have compatibility issues on the `synergyfinder` package.
 4. Only for the full SynPred deployment: open R (after step 3) on the command line/terminal:
 	- `if (!requireNamespace("BiocManager", quietly = TRUE))
     	install.packages("BiocManager")`
     - `BiocManager::install("synergyfinder")`
-    - `install.packages("devtools")` - This package might or might not be necessary depending on whether the previous installations were successful, however, the `pillar`package might issue an error down the line, and installing it with `devtools` solved it in this case.
-    - `devtools::install_github("r-lib/pillar")`
-    - `library(synergyfinder)` - To check if the package was properly installed.
+    - `library(synergyfinder)` - Check if the package was properly installed.
 3. `conda install -c conda-forge rdkit` - Install rdkit for molecular feature extraction with mordred. 
 4. `pip install mordred` - Install mordred for feature extraction.
 5. `pip install tensorflow==2.3.1` - Install this version of tensorflow.

@@ -11,8 +11,8 @@ library(progress)
   calc_synergy <- function(i, data_set, final_df, j) {
     ds_in_analysis <- subset(data_set, block_id == i)
     numbers <- ds_in_analysis[c(1:8)]
-    #numbers$conc_r <- numbers$conc_r * 1000
-    #numbers$conc_c <- numbers$conc_c * 1000
+    numbers$conc_r <- numbers$conc_r * 1
+    numbers$conc_C <- numbers$conc_C * 1
     numbers$conc_r_unit <- 'nM'
     numbers$conc_c_unit <- 'nM'
     
