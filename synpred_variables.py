@@ -3,8 +3,6 @@
 
 """
 Variables for the Synpred code
-conda activate tf
-tensorflow version 1.15
 """
 
 __author__ = "A.J. Preto"
@@ -26,7 +24,7 @@ CSV_TERMINATION = ".csv"
 SDF_TERMINATION = ".sdf"
 PKL_TERMINATION = ".pkl"
 SMILE_TERMINATION = ".smile"
-DEFAULT_LOCATION = "/storage/pfilipe/synergy_2/DEC_deployment"
+DEFAULT_LOCATION = "C:/users/marti/OneDrive/Documents/GitHub/synpred"
 DATASET_FOLDER =  DEFAULT_LOCATION + SYSTEM_SEP + "datasets"
 CCLE_FOLDER = DEFAULT_LOCATION + SYSTEM_SEP + "CCLE"
 SUPPORT_FOLDER = DEFAULT_LOCATION + SYSTEM_SEP + "support"

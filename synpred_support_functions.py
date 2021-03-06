@@ -3,8 +3,7 @@
 
 """
 A few helper functions
-conda activate black
-tensorflow version 1.15
+conda activate synpred
 """
 
 __author__ = "A.J. Preto"
