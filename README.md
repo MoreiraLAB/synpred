@@ -7,7 +7,7 @@ To properly run SynPred without interfering the user should setup an isolate con
 1. `conda create --name synpred_env python=3.8.2` - There is no problem in changing the environment name, provided the user uses the same name onward, however, the user should use this Python version, as some packages (e.g. Tensorflow) do not have installation support with pip at the timing of writing this tutorial.
 2. `conda activate synpred_env` - All the following steps should be performed in the environment. 
 
-Then, the user needs to install several packages.
+Then, the user needs to install several packages:
 
 3. `conda install -c conda-forge r-base` - This package is only required if you are trying to deploy the SynPred pipeline from scratch, and not for the standalone version.
 4. Only for the full SynPred deployment: open R (after step 3) on the command line/terminal:
