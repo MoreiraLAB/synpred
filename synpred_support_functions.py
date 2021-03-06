@@ -20,7 +20,7 @@ from DEC_variables import CSV_SEP, SYSTEM_SEP, PARAGRAPH_SEP, \
 def open_log_file(input_file_name):
 
     """
-    Open the fil with the CCLE datasets information
+    Open the file with the CCLE datasets information
     """
     opened_file = open(input_file_name, "r").readlines()
     output_dictionary = {}
@@ -42,7 +42,6 @@ def alternative_ID_file(input_file = CCLE_ANNOTATION_FILE):
     """
     Open the CCLE annotation file and locate alternative IDs.
     """
-
     opened_file = open(input_file, "r").readlines()
     output_dictionary = {}
     for row in opened_file[1:]:
