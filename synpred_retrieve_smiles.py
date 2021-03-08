@@ -17,15 +17,7 @@ from synpred_variables import SYSTEM_SEP, CSV_SEP, MOLECULES_FOLDER, \
 								INTERMEDIATE_SEP
 import sys
 import pubchempy
-
-def identify_unique_drugs(input_table, drug_1_col = "Drug1", drug_2_col = "Drug2"):
-
-	"""
-	Identify the unique drugs and download smile
-	"""
-	unique_drugs_1 = list(input_table[drug_1_col].unique())
-	unique_drugs_2 = list(input_table[drug_2_col].unique())
-	return list(set(unique_drugs_1 + unique_drugs_2))
+from synpred_support_functions import identify_unique_drugs
 
 def download_unique_smiles(input_drugs_list, verbose = True):
 

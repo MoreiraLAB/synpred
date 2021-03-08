@@ -12,7 +12,7 @@ __group__ = "Data-Driven Molecular Design"
 __group_leader__ = "Irina S. Moreira"
 __project__ = "SynPred"
 
-from DEC_variables import CSV_SEP, SYSTEM_SEP, PARAGRAPH_SEP, \
+from synpred_variables import CSV_SEP, SYSTEM_SEP, PARAGRAPH_SEP, \
                             INTERMEDIATE_SEP, TAB_SEP, \
                             SCALED_CCLE_START, CCLE_ANNOTATION_FILE, \
                             DROPPABLE_COLUMNS, TARGET_CLASS_COLUMN
@@ -134,3 +134,12 @@ def prepare_dataset(input_train, input_test, drop_columns = DROPPABLE_COLUMNS, \
 
     return {"train_features": train_features, "train_class": train_class, \
             "test_features": test_features, "test_class": test_class}
+
+def identify_unique_drugs(input_table, drug_1_col = "Drug1", drug_2_col = "Drug2"):
+
+    """
+    Identify the unique drugs and download smile
+    """
+    unique_drugs_1 = list(input_table[drug_1_col].unique())
+    unique_drugs_2 = list(input_table[drug_2_col].unique())
+    return list(set(unique_drugs_1 + unique_drugs_2))
