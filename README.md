@@ -24,7 +24,7 @@ Then, the user needs to install several packages:
 
 **Changes for pipeline replication**
 
-After downloading/cloning this repository, there are still some changes to be made.
+After downloading/cloning this repository, there are still some changes to be made if you wish to replicate the full pipeline of SynPred.
 1. At `synpred_variables.py`, change the variable `DEFAULT_LOCATION` to the location where you will be running your files
 2. If the folders were not automatically downloaded, create the folders, on the same location as the scripts, with the following names:
 	- CCLE
@@ -39,6 +39,7 @@ After downloading/cloning this repository, there are still some changes to be ma
 3. Some of the files required are not available on this page because their are either too large, or were developed by a third party. Particularly, the CCLE subsets, can be downloaded at CCLE website, and should go on the CCLE folder. There are 7 files required, please check file `support/CCLE_log_file.csv` to see which files are required for the full SynPred deployment. This files should have the same names as indicated in column `File_name` of the log file and go into `CCLE` folder. Furthermore, the user is also required to have the `NCI_ALMANAC` dataset at the location and name `datasets/NCI_ALMANAC.csv`. Finally, the user should change the `datasets/example.csv` file to the file with the combinations, with the same format and columns as advised.
 
 **Deploy the SynPred pipeline**
+
 After performing the changes previously pointed and properly installing and setting up the environment, these scripts should simply run without requiring changes.
 1. `synpred_variables.py` - Most of the variables are stored in here (paths, table variables, etc).
 2. `synpred_support_functions.py` - Several functions that will be present in more than one script.
