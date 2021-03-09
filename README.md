@@ -39,7 +39,7 @@ After downloading/cloning this repository, there are still some changes to be ma
 3. Some of the files required are not available on this page because their are either too large, or were developed by a third party. Particularly, the CCLE subsets, can be downloaded at CCLE website, and should go on the CCLE folder. There are 7 files required, please check file `support/CCLE_log_file.csv` to see which files are required for the full SynPred deployment. This files should have the same names as indicated in column `File_name` of the log file and go into `CCLE` folder. Furthermore, the user is also required to have the `NCI_ALMANAC` dataset at the location and name `datasets/NCI_ALMANAC.csv`. Finally, the user should change the `datasets/example.csv` file to the file with the combinations, with the same format and columns as advised.
 
 **Deploy the SynPred pipeline**
-
+After performing the changes previously pointed and properly installing and setting up the environment, these scripts should simply run without requiring changes.
 1. `synpred_variables.py` - Most of the variables are stored in here (paths, table variables, etc).
 2. `synpred_support_functions.py` - Several functions that will be present in more than one script.
 3. `synpred_find_synergy.R` - Use R with `synergyfinder` package to attain the classification with the different metrics.
