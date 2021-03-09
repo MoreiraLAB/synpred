@@ -63,3 +63,10 @@ After performing the changes previously pointed and properly installing and sett
 17. `synpred_ensemble_final.py` - Run the best ensemble model with Keras.
 
 **Standalone Deployment**
+
+For the standalone development, the user will require the files in the folder `CCLE_processed`, which contains the CCLE features as processed in the paper. 
+
+
+**Please cite:**
+António J. Preto, Pedro Matos-Filipe, Joana Mourão and Irina S. Moreira
+*SynPred: Prediction of Drug Combination Effects in Cancer using Full-Agreement Synergy Metrics and Deep Learning*
