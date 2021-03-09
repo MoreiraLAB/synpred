@@ -1,7 +1,6 @@
 """
 Script to deploy tensorflow for Gridsearch
-conda activate tf
-tensorflow version 1.15
+tensorflow version 2
 """
 
 import tensorflow as tf
@@ -16,21 +15,31 @@ from tensorflow.keras.losses import BinaryCrossentropy
 import pandas as pd
 from sklearn import preprocessing
 from datetime import datetime
+from sklearn.metrics import accuracy_score, roc_auc_score, \
+                            recall_score, precision_score, f1_score
+from synpred_variables import RANDOM_STATE, DROPPABLE_COLUMNS, \
+                                CELL_TYPES
 import sys
 import random
 import numpy as np
 import ast
-import os
-from DEC_support_functions import model_evaluation
-from DEC_variables import INTERMEDIATE_SEP, DL_SAVED_MODELS, SYSTEM_SEP
-
-np.random.seed(1)
-random.seed(1)
-tf.compat.v1.set_random_seed(1)
+from synpred_support_functions import model_evaluation
+np.random.seed(RANDOM_STATE)
+random.seed(RANDOM_STATE)
+tf.compat.v1.set_random_seed(RANDOM_STATE)
 c_type = 'all'
+
+__author__ = "A.J.Preto & Pedro Matos-Filipe"
+__email__ = "martinsgomes.jose@gmail.com"
+__group__ = "Data-Driven Molecular Design"
+__group_leader__ = "Irina S. Moreira"
+__project__ = "SynPred"
 
 class neural_network_class:
 
+    """
+    Standard neural network class for iterative deployment
+    """
     def __init__(self, input_architecture,  \
                         input_features, \
                         activation_function = "relu", \
@@ -52,70 +61,63 @@ class neural_network_class:
             
         self.model.add(Dense(1, activation='sigmoid'))
 
-def make_ds(file='train_biclassification_full_agreement_norm_encoder.csv', method='ZIP', scaler=None, c_type='all', sample_fraction = 1.0):
-    df = pd.read_csv(file)
-    df = df.sample(frac = sample_fraction)
-
-    cell_types = {
-        'Brain': ['U251', 'SF-268', 'SF-295', 'SNB-75', 'SF-539'],
-        'Breast': ['MDA-MB-231/ATCC', 'MDA-MB-468', 'T-47D', 'MCF7', 'BT-549', 'HS 578T'],
-        'Colon': ['HCT-15', 'SW-620', 'HCT-116', 'KM12'],
-        'Haematological': ['SR', 'K-562', 'RPMI-8226,'],
-        'Kidney': ['CAKI-1', 'ACHN', 'UO-31', 'A498', '786-0'],
-        'Lung': ['NCI-H460', 'EKVX', 'HOP-62', 'A549/ATCC', 'NCI-H23', 'NCI-H522', 'NCI-H322M', 'HOP-92'],
-        'Ovary': ['OVCAR-8', 'OVCAR-3', 'OVCAR-4', 'IGROV1', 'SK-OV-3'],
-        'Prostate': ['DU-145', 'PC-3'],
-        'Skin': ['LOX IMVI', 'SK-MEL-28', 'SK-MEL-5', 'MALME-3M', 'UACC-62', 'UACC-257']
-    }
+def prepare_dataset(file = '', method = 'Full-agreement', \
+            c_type='all', sample_fraction = 0.1, \
+            sample_fraction_mode = False):
+    """
+    Prepare the dataset to be trained
+    """
+    input_dataframe = pd.read_csv(file)
+    if sample_fraction_mode == True:
+        input_dataframe = input_dataframe.sample(frac = sample_fraction)
 
     if c_type != 'all':
         if type(c_type) is list:
-            exclusion = cell_types[c_type[0]]
+            exclusion = CELL_TYPES[c_type[0]]
             for i in c_type[1:]:
-                exclusion += cell_types[i]
+                exclusion += CELL_TYPES[i]
         else:
-            exclusion = cell_types[c_type]
+            exclusion = CELL_TYPES[c_type]
 
     if c_type != 'all':
-        df = df.loc[df['cell'].isin(exclusion)]
+        input_dataframe = input_dataframe.loc[input_dataframe['cell'].isin(exclusion)]
 
-    names = df[['cell', 'drug1', 'drug2']]
-    features = df
+    names = input_dataframe[['cell', 'drug1', 'drug2']]
+    features = input_dataframe
 
-    droper = ['cell', 'drug1', 'drug2', 'ZIP', 'Bliss', 'HSA','Full-agreement']
-
-    for column in droper:
+    for column in DROPPABLE_COLUMNS:
         if column != method:
             features = features.drop([column], axis = 1)
         else:
             continue
 
     target = features.pop(method)
-    features = features #scaler.fit_transform(features)
-
-    #target = target.replace({0: 0, 2: 1, 3: 2})
-
     return names, features, target
 
-def model_training(scaler, ds, method, input_model, c_type='all', outp=None, save_model = True):
+def model_training(dataset, method, input_model, \
+                    c_type='all', outp = None, save_model = True):
 
-    names, features, target = make_ds(file=ds, method=method, scaler = scaler, c_type=c_type)
-    history = input_model.model.fit(x = features, y = target, epochs = 125, validation_split=0.10)
+    """
+    Train the dataset
+    """
+    names, features, target = prepare_dataset(file = dataset, method = method, \
+                                                c_type = c_type, sample_fraction = 0.1, \
+                                                sample_fraction_mode = True)
+    history = input_model.model.fit(x = features, y = target, epochs = 250, validation_split = 0.10)
     if save_model == True:
-        input_model.model.save(os.path.join("./saved_model/",outp + INTERMEDIATE_SEP + method + ".h5"))
+        input_model.model.save('./saved_model/{}_{}'.format(outp, method))
 
     hist = pd.DataFrame(history.history)
     hist['epoch'] = history.epoch
     hist.to_csv('train_log/training_metrics_{}_{}.csv'.format(outp, method))
     predicted_class = input_model.model.predict(features)
-    return input_model, scaler, target, predicted_class
+    return input_model, target, predicted_class
 
 input_mode = sys.argv[3]
-method = "ZIP"
+method = "Full-agreement"
 train = "./datasets/train_" + input_mode + ".csv"
 test = "./datasets/test_" + input_mode + ".csv"
 outp = sys.argv[-1]
-standard_scaler = preprocessing.StandardScaler()
 input_architecture = [int(x) for x in ast.literal_eval(sys.argv[1])]
 
 if input_mode.split("_")[0] == "PCA":
@@ -126,19 +128,20 @@ elif input_mode.split("_")[0] == "autoencoder":
 raw_model =  neural_network_class(input_architecture, input_features, dropout_rate = float(sys.argv[2]))
 optimizer = tf.keras.optimizers.Adam(0.0001)
 raw_model.model.compile(loss='binary_crossentropy', optimizer = optimizer, metrics=['accuracy'])
-classification_model, new_scaler, train_class, train_predictions = model_training(standard_scaler, train, \
-                                                    method, raw_model, c_type=c_type, outp=outp, save_model = True)
+classification_model, train_class, train_predictions = model_training(train, \
+                                                    method, raw_model, c_type = c_type, \
+                                                    outp = outp, save_model = False)
 
-names, test, target = make_ds(file = test, method=method, scaler=new_scaler, c_type=c_type)
+names, test, target = prepare_dataset(file = test, method = method, c_type = c_type)
 test_predictions = [int(np.round(x)) for x in classification_model.model.predict(test)]
 train_predictions = [int(np.round(x)) for x in train_predictions]
 model_evaluation(target, test_predictions, subset_type = outp + "_test")
 model_evaluation(train_class, train_predictions, subset_type = outp + "_train")
+
 sys.exit()
 
 names['target'] = list(target)
 names['prediction'] = list(test_predictions)
-
 classification_model.model.summary()
 
 names.to_csv('predictions_{}_{}.csv'.format(outp, method))

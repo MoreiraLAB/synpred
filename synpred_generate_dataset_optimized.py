@@ -2,9 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Join the datasets
-conda activate black
-tensorflow version 1.15
+Join the datasets on their final stage
 """
 
 __author__ = "A.J. Preto"
@@ -13,11 +11,11 @@ __group__ = "Data-Driven Molecular Design"
 __group_leader__ = "Irina S. Moreira"
 __project__ = "SynPred"
 
-from DEC_variables import CSV_SEP, SYSTEM_SEP, PARAGRAPH_SEP, \
+from synpred_variables import CSV_SEP, SYSTEM_SEP, PARAGRAPH_SEP, \
                             INTERMEDIATE_SEP, TAB_SEP, \
                             SCALED_CCLE_START, H5_DATASET_RAW
 
-from DEC_variables import DEFAULT_LOCATION, CCLE_FOLDER, \
+from synpred_variables import DEFAULT_LOCATION, CCLE_FOLDER, \
                             SUPPORT_FOLDER, CCLE_DATASET_LOG_FILE, \
                             REDEPLOYMENT_FOLDER, CCLE_ID_COLUMN_NAME, \
                             TRAIN_DATASET, TEST_DATASET, CCLE_ID_COLUMN_SEP, \
@@ -30,13 +28,11 @@ from DEC_variables import DEFAULT_LOCATION, CCLE_FOLDER, \
                             AUTOENCODER_LOG_FILE, TRAIN_DATASET_AUTOENCODER, \
                             TEST_DATASET_AUTOENCODER, TRAIN_DATASET_AUTOENCODER_DROP, \
                             TEST_DATASET_AUTOENCODER_DROP, TRAIN_DATASET_PCA_DROP, \
-                            TEST_DATASET_PCA_DROP
+                            TEST_DATASET_PCA_DROP, RANDOM_STATE
 
-from DEC_support_functions import open_log_file, alternative_ID_file
+from synpred_support_functions import open_log_file, alternative_ID_file
 import os
 import pandas as pd
-#pd.set_option('display.max_rows', 100)
-#pd.set_option('display.max_columns', 100)
 import tensorflow as tf
 import sys
 import numpy as np
@@ -44,10 +40,10 @@ import pickle
 import h5py as h5
 import random
 
-random.seed(1)
-np.random.seed(1)
-os.environ['PYTHONHASHSEED']=str(1)
-tf.random.set_seed(1)
+random.seed(RANDOM_STATE)
+np.random.seed(RANDOM_STATE)
+os.environ['PYTHONHASHSEED'] = str(RANDOM_STATE)
+tf.random.set_seed(RANDOM_STATE)
 
 def CCLE_subset_id_expand(input_table_row):
 
@@ -254,7 +250,7 @@ def generate_reduced_subsets(logging_file = CCLE_DATASET_LOG_FILE, \
                 if verbose == True:
                     print("Currently writing:", output_importance_name)
                 explain_PCA_variance(pca, output_importance_name, features_columns, number_of_dimensions, output_variance_name)
-                continue
+
             output_features_table = pca.transform(features_columns)
         if mode == "autoencoder":
             output_name = CCLE_FOLDER + SYSTEM_SEP + current_subset + INTERMEDIATE_SEP + AUTOENCODER_CCLE
@@ -277,7 +273,7 @@ def generate_reduced_subsets(logging_file = CCLE_DATASET_LOG_FILE, \
         output_table = pd.concat([ID_column, pd.DataFrame(output_features_table)], axis = 1)
         output_table.to_csv(output_name, index = False)
         if verbose == True:
-            print("Successfully reduced", subset_file_name.split(SYSTEM_SEP)[-1], "with a ", mode ," from", \
+            print("Successfully reduced", subset_file_name.split(SYSTEM_SEP)[-1], "with a", mode ," from", \
                 opened_file.shape, "to a shape of:",output_table.shape)
 
 """
@@ -285,32 +281,32 @@ First generate the reduced subsets
 - activate write_feature_importances to write feature contribution to each component
 """
 #generate_reduced_subsets(number_of_dimensions = 25, mode = "autoencoder")
-#generate_reduced_subsets(number_of_dimensions = 25, mode = "PCA")
+generate_reduced_subsets(number_of_dimensions = 25, mode = "PCA", write_feature_importances = True)
 """
 Then aggregate them with full dataset
 """
 
-generate_reduced_subsets(number_of_dimensions = 25, mode = "PCA", write_feature_importances = True)
-sys.exit()
+#generate_reduced_subsets(number_of_dimensions = 25, mode = "PCA", write_feature_importances = True)
+#sys.exit()
 
-
-generate_raw_dataset(TRAIN_DATASET, TRAIN_DATASET_AUTOENCODER_DROP, \
+"""
+generate_raw_dataset(TRAIN_DATASET_PROCESSED, TRAIN_DATASET_AUTOENCODER_DROP, \
                         CCLE_FOLDER, mode = "autoencoder", NA_handling = "drop")
-generate_raw_dataset(TEST_DATASET, TEST_DATASET_AUTOENCODER_DROP, \
+generate_raw_dataset(TEST_DATASET_PROCESSED, TEST_DATASET_AUTOENCODER_DROP, \
                         CCLE_FOLDER, mode = "autoencoder", NA_handling = "drop")
 
-generate_raw_dataset(TRAIN_DATASET, TRAIN_DATASET_AUTOENCODER, \
+generate_raw_dataset(TRAIN_DATASET_PROCESSED, TRAIN_DATASET_AUTOENCODER, \
                         CCLE_FOLDER, mode = "autoencoder", NA_handling = "fill")
-generate_raw_dataset(TEST_DATASET, TEST_DATASET_AUTOENCODER, \
+generate_raw_dataset(TEST_DATASET_PROCESSED, TEST_DATASET_AUTOENCODER, \
                         CCLE_FOLDER, mode = "autoencoder", NA_handling = "fill")
-
-generate_raw_dataset(TRAIN_DATASET, TRAIN_DATASET_PCA_DROP, \
+"""
+generate_raw_dataset(TRAIN_DATASET_PROCESSED, TRAIN_DATASET_PCA_DROP, \
                         CCLE_FOLDER, mode = "PCA", NA_handling = "drop")
-generate_raw_dataset(TEST_DATASET, TEST_DATASET_PCA_DROP, \
+generate_raw_dataset(TEST_DATASET_PROCESSED, TEST_DATASET_PCA_DROP, \
                         CCLE_FOLDER, mode = "PCA", NA_handling = "drop")
 
-generate_raw_dataset(TRAIN_DATASET, TRAIN_DATASET_PCA, \
+generate_raw_dataset(TRAIN_DATASET_PROCESSED, TRAIN_DATASET_PCA, \
                         CCLE_FOLDER, mode = "PCA", NA_handling = "fill")
-generate_raw_dataset(TEST_DATASET, TEST_DATASET_PCA, \
+generate_raw_dataset(TEST_DATASET_PROCESSED, TEST_DATASET_PCA, \
                         CCLE_FOLDER, mode = "PCA", NA_handling = "fill")
 

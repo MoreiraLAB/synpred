@@ -30,13 +30,13 @@ import numpy as np
 import ast
 import pickle
 import sklearn
-from DEC_variables import REDEPLOYMENT_FOLDER, SYSTEM_SEP, \
+from synpred_variables import REDEPLOYMENT_FOLDER, SYSTEM_SEP, \
                             CSV_SEP, INTERMEDIATE_SEP, \
                             DL_SAVED_MODELS, RANDOM_STATE, \
                             PKL_TERMINATION, TRAIN_DATASET_PCA, \
                             TEST_DATASET_PCA, TRAIN_DATASET_PCA_DROP, \
                             TEST_DATASET_PCA_DROP, SUPPORT_FOLDER
-from DEC_support_functions import model_evaluation, prepare_dataset
+from synpred_support_functions import model_evaluation, prepare_dataset
 import h5py
 
 np.random.seed(RANDOM_STATE)
@@ -133,7 +133,8 @@ class ensemble:
                         INTERMEDIATE_SEP + "classes_dictionary.pkl"
         if write_class_pickle == True:
             with open(self.class_pickle_path, 'wb') as class_pkl:
-                pickle.dump(self.classes_dictionary, class_pkl, protocol=pickle.HIGHEST_PROTOCOL)
+                pickle.dump(self.classes_dictionary, class_pkl, \
+                                protocol = pickle.HIGHEST_PROTOCOL)
 
     def dict_load(self, file_name):
 
@@ -192,7 +193,6 @@ class ensemble:
         """
         Must be called after either target_generator or load_pred_dicts
         """
-        #class_subset = self.classes_dictionary[subset + INTERMEDIATE_SEP + "class"]
         
         if mode == "probabilities":
             usable_dictionary = self.predictions_dictionary_probs
@@ -224,16 +224,14 @@ class ensemble:
 
         return [np.round(x).astype(int) for x in list(input_array.mean(axis = 1))]
 
-    def nn_ensemble(self, input_array, write_model = True):
+    def nn_ensemble(self, input_array, write_model = False):
 
-        #architectures = [[10]*2,[10]*3,[10]*4,[10]*5,[10]*7,\
-        #                    [25]*2,[25]*3,[25]*4,[25]*5,[25]*7,\
-        #                    [50]*2,[50]*3,[50]*4,[50]*5,[50]*7,\
-        #                    [100]*2,[100]*3,[100]*4,[100]*5,[100]*7,\
-        #                    [500]*2,[500]*3,[500]*4,[500]*5,[500]*7]
-        architectures = [[50]*4]
-        #dropout_rates = [0.0,0.10,0.20,0.30,0.40,0.50,0.60,0.70,0.80,0.90]
-        dropout_rates = [0.60]
+        architectures = [[10]*2,[10]*3,[10]*4,[10]*5,[10]*7,\
+                            [25]*2,[25]*3,[25]*4,[25]*5,[25]*7,\
+                            [50]*2,[50]*3,[50]*4,[50]*5,[50]*7,\
+                            [100]*2,[100]*3,[100]*4,[100]*5,[100]*7,\
+                            [500]*2,[500]*3,[500]*4,[500]*5,[500]*7]
+        dropout_rates = [0.0,0.10,0.20,0.30,0.40,0.50,0.60,0.70,0.80,0.90]
         count = 1
         for current_architecture in architectures:
             for current_dropout_rate in dropout_rates:
@@ -297,25 +295,13 @@ class ensemble:
 
         self.nn_ensemble(self.train_predictions_table)
         
-        #self.ML_ensemble_models(self.train_predictions_table)
+        self.ML_ensemble_models(self.train_predictions_table)
 
 
-#drop_object = ensemble(REDEPLOYMENT_FOLDER, DL_SAVED_MODELS, "drop", write_class_pickle = False)
 regular_object = ensemble(REDEPLOYMENT_FOLDER, DL_SAVED_MODELS, "non_drop", write_class_pickle = False)
-#regular_object.target_generator(prediction_mode = "probabilities")
-#regular_object.target_generator(prediction_mode = "classes")
-"""
-Run these lines to generate the pickles with the prediction dictionaries
 
-drop_object.target_generator(prediction_mode = "classes")
-drop_object.target_generator(prediction_mode = "probabilities")
-regular_object.target_generator(prediction_mode = "classes")
 regular_object.target_generator(prediction_mode = "probabilities")
-"""
-
-#drop_object.load_pred_dicts()
-#drop_object.generate_tables()
-#drop_object.deploy_ensemble()
+regular_object.target_generator(prediction_mode = "classes")
 
 regular_object.load_pred_dicts()
 regular_object.generate_tables()

@@ -14,13 +14,12 @@ __project__ = "SynPred"
 import os
 import sys
 import itertools
+from synpred_variables import SYSTEM_SEP, CSV_SEP, \
+						INTERMEDIATE_SEP, PARAGRAPH_SEP, \
+						SUPPORT_FOLDER, CSV_TERMINATION
 
-SYSTEM_SEP = "/"
-CSV_SEP = ","
-INTERMEDIATE_SEP = "_"
-PARAGRAPH_SEP = "\n"
-PARAMETERS_INDEX_FILE = "gridsearch_index_after_grid.csv"
-def iterate_dictionary(input_dictionary, target_script = "DEC_synpred_class_final.py", \
+PARAMETERS_INDEX_FILE = SUPPORT_FOLDER + SYSTEM_SEP + "gridsearch_index_after_grid.csv" + CSV_TERMINATION
+def iterate_dictionary(input_dictionary, target_script = "synpred_keras_final.py", \
 						verbose = True):
 
 	dictionary_keys = list(input_dictionary.keys())
@@ -47,6 +46,6 @@ parameters_dictionary = {"architecture":[[100]*4,[2500]*2,
 										[int(4229/2),int(4229/4),int(4229/16),int(4229/256)]
 										],
 							"dropout_rate": [0], 
-							"dataset": ["PCA","PCA_drop"]}
+							"dataset": ["PCA"]}
 
 iterate_dictionary(parameters_dictionary)

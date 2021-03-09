@@ -3,8 +3,6 @@
 
 """
 Treat the CCLE data
-conda activate black
-tensorflow version 1.15
 """
 
 __author__ = "A.J. Preto"
@@ -13,16 +11,16 @@ __group__ = "Data-Driven Molecular Design"
 __group_leader__ = "Irina S. Moreira"
 __project__ = "SynPred"
 
-from DEC_variables import CSV_SEP, SYSTEM_SEP, PARAGRAPH_SEP, \
+from synpred_variables import CSV_SEP, SYSTEM_SEP, PARAGRAPH_SEP, \
 							INTERMEDIATE_SEP, TAB_SEP, \
 							SCALED_CCLE_START, H5_DATASET_RAW
 
-from DEC_variables import DEFAULT_LOCATION, CCLE_FOLDER, \
+from synpred_variables import DEFAULT_LOCATION, CCLE_FOLDER, \
 							SUPPORT_FOLDER, CCLE_DATASET_LOG_FILE, \
 							REDEPLOYMENT_FOLDER, CCLE_ID_COLUMN_NAME, \
 							CCLE_ID_COLUMN_SEP, SUBSET_CCLE
 
-from DEC_variables import H5_DATASET_RAW
+from synpred_variables import H5_DATASET_RAW
 
 import os
 import pandas as pd
@@ -30,7 +28,7 @@ import pandas as pd
 #pd.set_option('display.max_columns', 100)
 
 
-from DEC_support_functions import open_log_file
+from synpred_support_functions import open_log_file
 import sys
 import numpy as np
 import pickle
@@ -56,9 +54,6 @@ def open_CCLE_file(input_file, header_length = 3, split_sep = " "):
 				written_header = True
 				continue
 			sample_table.append(current_row)
-
-	#sample_dataframe = pd.DataFrame(sample_table, columns = header)
-	#print(sample_dataframe)
 
 def edit_ids_column(input_dataframe, ids_list):
 
@@ -154,7 +149,4 @@ def generate_raw_CCLE(dataset_log_file = CCLE_DATASET_LOG_FILE,  \
 			joint_dataframe.to_csv(output_name, index = False)
 			del joint_dataframe
 	
-
-
 generate_raw_CCLE(dataset_log_file = CCLE_DATASET_LOG_FILE)
-#open_CCLE_file("10_CCLE_RNAseq_genes_counts_20180929.gct", split_sep = "\t", header_length = 5)

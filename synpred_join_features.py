@@ -3,8 +3,6 @@
 
 """
 Join the features with the previously split dataset
-conda activate black
-tensorflow version 1.15
 """
 
 __author__ = "A.J. Preto"
@@ -13,11 +11,11 @@ __group__ = "Data-Driven Molecular Design"
 __group_leader__ = "Irina S. Moreira"
 __project__ = "SynPred"
 
-from DEC_variables import CSV_SEP, SYSTEM_SEP, PARAGRAPH_SEP, \
+from synpred_variables import CSV_SEP, SYSTEM_SEP, PARAGRAPH_SEP, \
 							INTERMEDIATE_SEP, TAB_SEP, \
 							SCALED_CCLE_START, H5_DATASET_RAW
 
-from DEC_variables import DEFAULT_LOCATION, CCLE_FOLDER, \
+from synpred_variables import DEFAULT_LOCATION, CCLE_FOLDER, \
 							SUPPORT_FOLDER, CCLE_DATASET_LOG_FILE, \
 							REDEPLOYMENT_FOLDER, CCLE_ID_COLUMN_NAME, \
 							TRAIN_DATASET, TEST_DATASET, CCLE_ID_COLUMN_SEP, \
@@ -25,7 +23,7 @@ from DEC_variables import DEFAULT_LOCATION, CCLE_FOLDER, \
 							NCI_ALMANAC_DATASET, NCI_ALMANAC_CELL_COLUMN, \
 							CORRECTION_DICTIONARY
 
-from DEC_support_functions import alternative_ID_file
+from synpred_support_functions import alternative_ID_file
 
 import os
 import pandas as pd

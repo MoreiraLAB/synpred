@@ -88,7 +88,7 @@ TEST_DATASET_AUTOENCODER_CUSTOM_DRUGS = DATASET_FOLDER + SYSTEM_SEP + "test_auto
 TRAIN_DATASET_AUTOENCODER_DROP_CUSTOM_DRUGS = DATASET_FOLDER + SYSTEM_SEP + "train_autoencoder_drop_custom_drugs" + CSV_TERMINATION
 TEST_DATASET_AUTOENCODER_DROP_CUSTOM_DRUGS = DATASET_FOLDER + SYSTEM_SEP + "test_autoencoder_drop_custom_drugs" + CSV_TERMINATION
 
-COLUMN_CLASSES = ["ZIP","Bliss","HSA"]
+COLUMN_CLASSES = ["ZIP","Bliss","HSA", "Loewe"]
 FULL_AGREEMENT_COLUMN_NAME = "Full-agreement"
 
 SCALER_MORDRED_FILE = "scaler_mordred.pkl"
@@ -136,8 +136,20 @@ CORRECTION_DICTIONARY = {"CAKI-1":"Caki-1","NCI-H322M":"NCI-H322",
 		"SF-539":"SF539","SNB-75":"SNB75","HCC-2998":"HCC2998",
 		"NCI/ADR-RES":"ADRRES","RXF 393":"RXF393","SN12C":"SN-12C",
 		"CCRF-CEM":"CCRFCEM"}
-DROPPABLE_COLUMNS = ['cell', 'drug1', 'drug2', 'ZIP', 'Bliss', 'HSA','Full-agreement']
+DROPPABLE_COLUMNS = ['cell', 'drug1', 'drug2', 'ZIP', 'Bliss', 'HSA', 'Loewe','Full-agreement']
 TARGET_CLASS_COLUMN = ["Full-agreement"]
 RANDOM_STATE = 42
 METRICS_NAME_LIST = ["Accuracy","Precision","Recall","AUC","F1-score"]
-
+THRESHOLDS_DICTIONARY = {"ZIP": 2.97920, "Bliss": 5.47210, "HSA": 3.487304, "Loewe": 1.97352}
+CLASSES_LIST = ["ZIP","Bliss","HSA","Loewe"]
+CELL_TYPES = {
+        'Brain': ['U251', 'SF-268', 'SF-295', 'SNB-75', 'SF-539'],
+        'Breast': ['MDA-MB-231/ATCC', 'MDA-MB-468', 'T-47D', 'MCF7', 'BT-549', 'HS 578T'],
+        'Colon': ['HCT-15', 'SW-620', 'HCT-116', 'KM12'],
+        'Haematological': ['SR', 'K-562', 'RPMI-8226,'],
+        'Kidney': ['CAKI-1', 'ACHN', 'UO-31', 'A498', '786-0'],
+        'Lung': ['NCI-H460', 'EKVX', 'HOP-62', 'A549/ATCC', 'NCI-H23', 'NCI-H522', 'NCI-H322M', 'HOP-92'],
+        'Ovary': ['OVCAR-8', 'OVCAR-3', 'OVCAR-4', 'IGROV1', 'SK-OV-3'],
+        'Prostate': ['DU-145', 'PC-3'],
+        'Skin': ['LOX IMVI', 'SK-MEL-28', 'SK-MEL-5', 'MALME-3M', 'UACC-62', 'UACC-257']
+    }

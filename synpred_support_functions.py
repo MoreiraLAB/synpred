@@ -3,7 +3,6 @@
 
 """
 A few helper functions
-conda activate synpred
 """
 
 __author__ = "A.J. Preto"
@@ -76,7 +75,7 @@ def model_evaluation(input_class, input_predictions, \
     """
     from sklearn.metrics import accuracy_score, roc_auc_score, \
                             recall_score, precision_score, f1_score
-    from DEC_variables import EVALUATION_DL_FOLDER, CSV_TERMINATION
+    from synpred_variables import EVALUATION_DL_FOLDER, CSV_TERMINATION
     if verbose == True:
         print("Currently evaluating:",subset_type, "\n")
     output_file_name = EVALUATION_DL_FOLDER + SYSTEM_SEP + subset_type + CSV_TERMINATION
@@ -114,10 +113,15 @@ def model_evaluation(input_class, input_predictions, \
             output_file.write("Recall," + str(recall) + "\n")
             output_file.write("AUC," + str(auc) + "\n")
             output_file.write("F1-score," + str(f1_value) + "\n")
+    return [accuracy, precision, recall, auc, f1_value]
 
 def prepare_dataset(input_train, input_test, drop_columns = DROPPABLE_COLUMNS, \
-                    target_column = TARGET_CLASS_COLUMN, subset_size = 0):
+                    target_column = TARGET_CLASS_COLUMN, subset_size = 0, \
+                    sample_size = 1.0, sample_mode = False):
     
+    """
+    Helped function to prepare the dataset for training
+    """
     import pandas as pd
     if subset_size != 0:
         train_dataset = pd.read_csv(input_train, sep = CSV_SEP, header = 0, nrows = subset_size)
@@ -125,6 +129,8 @@ def prepare_dataset(input_train, input_test, drop_columns = DROPPABLE_COLUMNS, \
     else:
         train_dataset = pd.read_csv(input_train, sep = CSV_SEP, header = 0)
         test_dataset = pd.read_csv(input_test, sep = CSV_SEP, header = 0)
+    if sample_mode == True:
+        train_dataset = train_dataset.sample(frac = sample_size, axis = 0)
     train_class = train_dataset[target_column]
     train_features = train_dataset.drop(drop_columns, axis = 1)
 

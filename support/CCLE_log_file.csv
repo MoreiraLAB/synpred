@@ -1,0 +1,8 @@
+File_ID,separator,File_name,skip_rows,Features_type,Ids
+5,comma,5_CCLE_GlobalChromatinProfiling_20181130.csv,0,cell;CellLineName,BroadID;
+6,comma,6_CCLE_metabolomics_20190502.csv,0,cell;CCLE_ID,DepMap_ID;
+7,tab,7_CCLE_miRNA_20181103.gct.txt,2,miRNA;Name,Description;
+12,tab,12_CCLE_RNAseq_rsem_genes_tpm_20180929.txt,0,gene;gene_id,transcript_ids;
+14,comma,14_CCLE_RPPA_20181003.csv,0,cell;;
+17,tab,17_CCLE_RRBS_tss_CpG_clusters_20181022.txt,0,gene;cluster_id;CpG_sites_hg19,avg_coverage
+22,tab,22_CCLE_copynumber_byGene_2013-12-03.txt,0,gene;EGID,SYMBOL;CHR,CHRLOC,CHRLOCEND

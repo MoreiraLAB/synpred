@@ -2,7 +2,7 @@
 
 """
 Deploy DL pipeline on the SynPred dataset
-with gridsearch
+with custom made gridsearch
 """
 
 __author__ = "A.J. Preto"
@@ -14,15 +14,17 @@ __project__ = "SynPred"
 import os
 import sys
 import itertools
+from synpred_variables import SYSTEM_SEP, CSV_SEP, \
+								INTERMEDIATE_SEP, PARAGRAPH_SEP, \
+								SUPPORT_FOLDER, CSV_TERMINATION
 
-SYSTEM_SEP = "/"
-CSV_SEP = ","
-INTERMEDIATE_SEP = "_"
-PARAGRAPH_SEP = "\n"
-PARAMETERS_INDEX_FILE = "gridsearch_index.csv"
-def iterate_dictionary(input_dictionary, target_script = "SEP_synpred_class.py", \
+PARAMETERS_INDEX_FILE = SUPPORT_FOLDER + SYSTEM_SEP + "gridsearch_index" + CSV_TERMINATION
+def iterate_dictionary(input_dictionary, target_script = "synpred_keras.py", \
 						verbose = True):
-
+	
+	"""
+	Iterate over the dictionary of parameters defined below the function and train all the combinations with keras
+	"""
 	dictionary_keys = list(input_dictionary.keys())
 	parameters_configuration_list = list(itertools.product(*[input_dictionary[x] for x in dictionary_keys]))
 	model_id = 0
@@ -35,7 +37,7 @@ def iterate_dictionary(input_dictionary, target_script = "SEP_synpred_class.py",
 			for x in parameters:
 				start_command +=  '"' + str(x) + '" '
 			start_command += str(model_id)
-			#os.system(start_command)
+			os.system(start_command)
 			writeable_row = str(model_id) + CSV_SEP + CSV_SEP.join([str(x) for x in parameters]) + PARAGRAPH_SEP
 			output_file.write(writeable_row)
 			if verbose == True:

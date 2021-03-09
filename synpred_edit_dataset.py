@@ -15,7 +15,7 @@ import os
 import pandas as pd
 import numpy as np
 import sys
-from DEC_variables import SYSTEM_SEP, CSV_SEP, PARAGRAPH_SEP, \
+from synpred_variables import SYSTEM_SEP, CSV_SEP, PARAGRAPH_SEP, \
 							TAB_SEP, TRAIN_DATASET, TEST_DATASET, \
 							TRAIN_DATASET_PROCESSED, TEST_DATASET_PROCESSED, \
 							INTERMEDIATE_SEP, MORDRED_RAW_FILE, COLUMN_CLASSES, \
@@ -33,14 +33,6 @@ def edit_file(input_file, output_name, class_table, mordred_dataset_file = MORDR
 	the correct scaling and add the full agreement class 
 	"""
 	opened_file = pd.read_csv(input_file, header = 0)
-	#opened_class_file = pd.read_csv(class_table, header = 0)
-	#print(opened_file.shape,opened_class_file.shape)
-	#drop_classes = COLUMN_CLASSES + ["Loewe"]
-	#opened_file = opened_file.drop(drop_classes, axis = 1)
-	#opened_file = pd.concat([opened_file, opened_class_file], axis = 1)
-	#print(opened_file)
-	#sys.exit()
-	#print(opened_file.shape)
 	keep_columns = ["cell","drug1","drug2"] + COLUMN_CLASSES
 	only_ids_and_class = opened_file[keep_columns]
 	full_agreement_column = only_ids_and_class[COLUMN_CLASSES].apply(np.prod, axis = 1)
