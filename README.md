@@ -22,7 +22,7 @@ Then, the user needs to install several packages:
 7. `pip install scikit-learn` - Scikit-learn is required at many steps of the pipeline. 
 8. `pip install xgboost`- The package to use the Extreme Gradient Boosting methods needs to be installed separately from scikit-learn.
 
-**Changes**
+**Changes for pipeline replication**
 
 After downloading/cloning this repository, there are still some changes to be made.
 1. At `synpred_variables.py`, change the variable `DEFAULT_LOCATION` to the location where you will be running your files
@@ -40,17 +40,17 @@ After downloading/cloning this repository, there are still some changes to be ma
 
 **Deploy the SynPred pipeline**
 
-1. `synpred_variables.py` - most of the variables are stored in here (paths, table variables, etc).
-2. `synpred_support_functions.py` - several functions that will be present in more than one script.
+1. `synpred_variables.py` - Most of the variables are stored in here (paths, table variables, etc).
+2. `synpred_support_functions.py` - Several functions that will be present in more than one script.
 3. `synpred_find_synergy.R` - Use R with `synergyfinder` package to attain the classification with the different metrics.
-4. `synpred_retrieve_smiles.py` - Use `pubchempy` to download the smile into the `molecules`folder.
+4. `synpred_retrieve_smiles.py` - Use `pubchempy` to download the smile into the `molecules` folder.
 5. `synpred_construct_split_dataset.py` - Split the dataset while joining the drug features.
-6. `synpred_edit_dataset.py` - start by editing the dataset to generate the full-agreement class and the properly scaled features.
-7. `synpred_CCLE_filter.py` - run this to generate CCLE subsets.
+6. `synpred_edit_dataset.py` - Start by editing the dataset to generate the full-agreement class and the properly scaled features.
+7. `synpred_CCLE_filter.py` - Run this to generate CCLE subsets.
 	Only the files in "support/CCLE_log_file.csv" will be called.
 	Input and output files at the "datasets" folder.
-8. `synpred_join_features.py` - join the dataset's classes and IDs.
-9. `synpred_generate_dataset_optimized.py` - run to generate dimensionality reduction (PCA) on the CCLE subsets.
+8. `synpred_join_features.py` - Join the dataset's classes and IDs.
+9. `synpred_generate_dataset_optimized.py` - Run to generate dimensionality reduction (PCA) on the CCLE subsets.
 	and keep only the cell lines present in the NCI-ALMANAC dataset.
 10. `synpred_keras.py` - Neural network with keras/tensorflow. To be called from the command line or script 11.
 11. `synpred_gridsearch_keras.py` - Run the gridsearch on the `synpred_keras.py`. Outputs to "evaluation_summary" folder. This makes use of only 100% of the dataset.
