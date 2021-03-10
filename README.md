@@ -15,6 +15,7 @@ Then, the user needs to install several packages:
     	install.packages("BiocManager")`
     - `BiocManager::install("synergyfinder")`
     - `library(synergyfinder)` - Check if the package was properly installed.
+    - `q()` - Exit the R shell.
 3. `conda install -c conda-forge rdkit` - Install rdkit for molecular feature extraction with mordred. 
 4. `pip install mordred` - Install mordred for feature extraction.
 5. `pip install pubchempy` - Install pubchempy to download SMILE from name.
@@ -22,11 +23,24 @@ Then, the user needs to install several packages:
 7. `pip install scikit-learn` - Scikit-learn is required at many steps of the pipeline. 
 8. `pip install xgboost`- The package to use the Extreme Gradient Boosting methods needs to be installed separately from scikit-learn.
 
+**Standalone Deployment**
+
+For the standalone development, the user will require the files in the folder `CCLE_processed`, which contains the CCLE features as processed in the paper. Furthermore, the user requires the pretrained models. These are too large for GitHub, as such, the user must download them at `http://www.moreiralab.com/resources/synpred`, at the `Stand-alone deployment section` and store them in a folder in the same location as the scripts, with the name `standalone_models`. Finally, the user must have performed environment setup and needs to run the standalone inside the activated environment.
+Regarding the scripts, the only change required should be in the `standalone_variables.py` script, in which the user should change the `HOME` variable into the folder path on his/her computer.
+
+Finally, the user must create (if not already cloned) a folder with the name `standalone_results` at the same folder of the scripts. 
+
+The way to run the SynPred stand-alone deployment is, after initializing the conda environment typing:
+
+`python standalone_synpred.py your_table_name.csv`
+
+The user can then check the features and results calculated at the `standalone_results` folder. The user is advised that running the script with different input tables will result in overwriting of the predictions. To check an example of the input file, consult the `standalone_example.csv`, in the folder of the scripts. The names of the columns should be the same, as well as the content. 
+
 **Changes for pipeline replication**
 
 After downloading/cloning this repository, there are still some changes to be made if you wish to replicate the full pipeline of SynPred.
 1. At `synpred_variables.py`, change the variable `DEFAULT_LOCATION` to the location where you will be running your files
-2. If the folders were not automatically downloaded, create the folders, on the same location as the scripts, with the following names:
+2. If the folders were not automatically downloaded, the user needs to create the folders, on the same location as the scripts, with the following names:
 	- CCLE
 	- datasets
 	- evaluation_summary
@@ -62,11 +76,8 @@ After performing the changes previously pointed and properly installing and sett
 16. `synpred_ensemble_gridsearch.py` - Test several ensemble methods, namely, several Keras neural network.
 17. `synpred_ensemble_final.py` - Run the best ensemble model with Keras.
 
-**Standalone Deployment**
-
-For the standalone development, the user will require the files in the folder `CCLE_processed`, which contains the CCLE features as processed in the paper. 
-
-
 **Please cite:**
+
 António J. Preto, Pedro Matos-Filipe, Joana Mourão and Irina S. Moreira
+
 *SynPred: Prediction of Drug Combination Effects in Cancer using Full-Agreement Synergy Metrics and Deep Learning*
