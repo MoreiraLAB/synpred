@@ -1,5 +1,5 @@
 # SynPred
-*Full Machine Learning Pipeline for the Synpred prediction and Standalone deployment*
+*Full Machine Learning Pipeline for the Synpred prediction and Stand-alone deployment*
 
 **Prerequisites**
 
@@ -9,7 +9,7 @@ To properly run SynPred without interfering the user should setup an isolate con
 
 Then, the user needs to install several packages:
 
-3. `conda install -c conda-forge r-base=3.6.3` - Using R is only required if you are trying to deploy the SynPred pipeline from scratch, and not for the standalone version. If you are going to deploy the full pipeline, make sure to install this specific version of R, as others might have compatibility issues on the `synergyfinder` package.
+3. `conda install -c conda-forge r-base=3.6.3` - Using R is only required if you are trying to deploy the SynPred pipeline from scratch, and not for the stand-alone version. If you are going to deploy the full pipeline, make sure to install this specific version of R, as others might have compatibility issues on the `synergyfinder` package.
 4. Only for the full SynPred deployment: open R (after step 3) on the command line/terminal:
 	- `if (!requireNamespace("BiocManager", quietly = TRUE))
     	install.packages("BiocManager")`
@@ -23,9 +23,9 @@ Then, the user needs to install several packages:
 7. `pip install scikit-learn` - Scikit-learn is required at many steps of the pipeline. 
 8. `pip install xgboost`- The package to use the Extreme Gradient Boosting methods needs to be installed separately from scikit-learn.
 
-**Standalone Deployment**
+**Stand-alone Deployment**
 
-For the standalone development, the user will require the files in the folder `CCLE_processed`, which contains the CCLE features as processed in the paper. Furthermore, the user requires the pretrained models. These are too large for GitHub, as such, the user must download them at `http://www.moreiralab.com/resources/synpred`, at the `Stand-alone deployment section` and store them in a folder in the same location as the scripts, with the name `standalone_models`. Finally, the user must have performed environment setup and needs to run the standalone inside the activated environment.
+For the stand-alone development, the user will require the files in the folder `CCLE_processed`, which contains the CCLE features as processed in the paper. Furthermore, the user requires the pretrained models. These are too large for GitHub, as such, the user must download them at `http://www.moreiralab.com/resources/synpred`, at the `Stand-alone deployment section` and store them in a folder in the same location as the scripts, with the name `standalone_models`. Finally, the user must have performed environment setup and needs to run the standa-lone inside the activated environment.
 Regarding the scripts, the only change required should be in the `standalone_variables.py` script, in which the user should change the `HOME` variable into the folder path on his/her computer.
 
 Finally, the user must create (if not already cloned) a folder with the name `standalone_results` at the same folder of the scripts. 
