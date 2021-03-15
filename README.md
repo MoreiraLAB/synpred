@@ -82,4 +82,4 @@ After performing the changes previously pointed and properly installing and sett
 António J. Preto, Pedro Matos-Filipe, Joana Mourão and Irina S. Moreira
 
 *SynPred: Prediction of Drug Combination Effects in Cancer using Full-Agreement Synergy Metrics and Deep Learning*
-![image](https://user-images.githubusercontent.com/9800353/111206191-fb855880-85bf-11eb-917f-a58e503c779d.png)
+
