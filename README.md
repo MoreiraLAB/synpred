@@ -9,6 +9,8 @@ Here, we implemented, SynPred, which leverages state-of-the-art AI advances, spe
 <p align="center">
 <img src="graphical_abstract.png" alt="drawing" width="500" height ="600"/>
 </p>
+
+
 **Prerequisites**
 
 To properly run SynPred the user should setup an isolated Conda environment. Please follow the specifications below.
