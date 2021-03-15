@@ -1,15 +1,16 @@
 # SynPred
 *Full Machine Learning Pipeline for the Synpred prediction and Stand-alone deployment*
 
+
 **Prerequisites**
 
-To properly run SynPred the user should setup an isolate conda environment. Please follow the specifications below.
-1. `conda create --name synpred_env python=3.8.2` - There is no problem in changing the environment name, provided the user uses the same name onward. However, the user should use this Python version, as some packages (e.g. Tensorflow) do not have installation support with pip at the timing of writing this tutorial.
-2. `conda activate synpred_env` - All the following steps should be performed in the environment. 
+To properly run SynPred the user should setup an isolated Conda environment. Please follow the specifications below.
+1. `conda create --name synpred_env python=3.8.2` - There is no problem in changing the environment name, provided the user utilizes the same name onward. However, the user should use this Python version, as some packages (e.g. Tensorflow) do not have installation support with pip when this pipeline was constructed. 
+2. `conda activate synpred_env` - All the following steps should be performed in the established environment. 
 
 Then, the user needs to install several packages:
 
-3. `conda install -c conda-forge r-base=3.6.3` - Using R is only required if you are trying to deploy the SynPred pipeline from scratch, and not for the stand-alone version. If you are going to deploy the full pipeline, make sure to install this specific version of R, as others might have compatibility issues on the `synergyfinder` package.
+3. `conda install -c conda-forge r-base=3.6.3` - R is only required if you are trying to deploy the SynPred pipeline from scratch, and not for the stand-alone version, which was provided. If you are going to deploy the full pipeline, make sure to install this specific version of R, as others might have compatibility issues on the `synergyfinder` package.
 4. Only for the full SynPred deployment: open R (after step 3) on the command line/terminal:
 	- `if (!requireNamespace("BiocManager", quietly = TRUE))
     	install.packages("BiocManager")`
@@ -25,7 +26,7 @@ Then, the user needs to install several packages:
 
 **Stand-alone Deployment**
 
-For the stand-alone development, the user will require the files in the folder `CCLE_processed`, which contains the CCLE features as processed in the paper. Furthermore, the user requires the pretrained models. These are too large for GitHub, as such, the user must download them at `http://www.moreiralab.com/resources/synpred`, at the `Stand-alone deployment section` and store them in a folder in the same location as the scripts, with the name `standalone_models`. Finally, the user must have performed environment setup and needs to run the standa-lone inside the activated environment.
+For the stand-alone development, the user will require the files in the folder `CCLE_processed`, which contains the CCLE features as processed in the paper. Furthermore, the user requires the pretrained models. These are too large for GitHub, as such, the user must download them at `http://www.moreiralab.com/resources/synpred`, at the `Stand-alone deployment section` and store them in a folder in the same location as the scripts, with the name `standalone_models`. Finally, the user must have performed environment setup and needs to run the standalone inside the activated environment.
 Regarding the scripts, the only change required should be in the `standalone_variables.py` script, in which the user should change the `HOME` variable into the folder path on his/her computer.
 
 Finally, the user must create (if not already cloned) a folder with the name `standalone_results` at the same folder of the scripts. 
@@ -34,7 +35,7 @@ The way to run the SynPred stand-alone deployment is, after initializing the con
 
 `python standalone_synpred.py your_table_name.csv`
 
-The user can then check the features and results calculated at the `standalone_results` folder. The user is advised that running the script with different input tables will result in overwriting of the predictions. To check an example of the input file, consult the `standalone_example.csv`, in the folder of the scripts. The names of the columns should be the same, as well as the content. 
+The user can then check the features and results calculated at the `standalone_results` folder. The user was to be careful and avoid overwriting of the predictions when running the script with different input tables. To check an example of the input file, consult the `standalone_example.csv`, in the folder of the scripts. The names of the columns should be the same, as well as the content. 
 
 **Changes for pipeline replication**
 
@@ -50,7 +51,7 @@ After downloading/cloning this repository, there are still some changes to be ma
 	- saved_model
 	- support
 	- train_log
-3. Some of the files required are not available on this page because their are either too large, or were developed by a third party. Particularly, the CCLE subsets, can be downloaded at CCLE website, and should go on the CCLE folder. There are 7 files required, please check file `support/CCLE_log_file.csv` to see which files are required for the full SynPred deployment. This files should have the same names as indicated in column `File_name` of the log file and go into `CCLE` folder. Furthermore, the user is also required to have the `NCI_ALMANAC` dataset at the location and name `datasets/NCI_ALMANAC.csv`. Finally, the user should change the `datasets/example.csv` file to the file with the combinations, with the same format and columns as advised.
+3. Some of the files required are not available on this page as either they are too large or were developed by a third party. Particularly, the CCLE subsets, can be downloaded at CCLE website, and should go on the CCLE folder. There are 7 files required, please check file `support/CCLE_log_file.csv` to see which files are required for the full SynPred deployment. These files should have the same names as indicated in column `File_name` of the log file and go into `CCLE` folder. Furthermore, the user is also required to have the `NCI_ALMANAC` dataset at the location and name `datasets/NCI_ALMANAC.csv`. Finally, the user should change the `datasets/example.csv` file to the file with the combinations, with the same format and columns as advised.
 
 **Deploy the SynPred pipeline**
 
@@ -81,3 +82,4 @@ After performing the changes previously pointed and properly installing and sett
 António J. Preto, Pedro Matos-Filipe, Joana Mourão and Irina S. Moreira
 
 *SynPred: Prediction of Drug Combination Effects in Cancer using Full-Agreement Synergy Metrics and Deep Learning*
+![image](https://user-images.githubusercontent.com/9800353/111206191-fb855880-85bf-11eb-917f-a58e503c779d.png)
