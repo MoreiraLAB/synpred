@@ -5,7 +5,7 @@ High-throughput screening technologies used in the development of omics data con
 
 Here, we implemented, SynPred, which leverages state-of-the-art AI advances, specifically designed ensembles of ML and DL algorithms to link in an interdisciplinary approach omics and biophysical traits to predict anticancer drug synergy. The final prediction model, when evaluating an independent test set achieved state-of-the-art metrics: accuracy – 0.85, precision – 0.77, recall – 0.75, AUC – 0.82, and F1-score - 0.76.  Moreover, data interpretability was achieved by deploying the most current and robust feature importance approaches allowing us to highlight the most relevant omics features and pinpoint specific gene profiles.
 
-<img src="graphical_abstract.png" alt="drawing" width="200" height ="400"/>
+<img src="graphical_abstract.png" alt="drawing" width="500" height ="600" align="center"/>
 
 **Prerequisites**
 
