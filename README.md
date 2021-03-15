@@ -3,8 +3,8 @@
 
 **Prerequisites**
 
-To properly run SynPred without interfering the user should setup an isolate conda environment. Please follow the specifications below.
-1. `conda create --name synpred_env python=3.8.2` - There is no problem in changing the environment name, provided the user uses the same name onward, however, the user should use this Python version, as some packages (e.g. Tensorflow) do not have installation support with pip at the timing of writing this tutorial.
+To properly run SynPred the user should setup an isolate conda environment. Please follow the specifications below.
+1. `conda create --name synpred_env python=3.8.2` - There is no problem in changing the environment name, provided the user uses the same name onward. However, the user should use this Python version, as some packages (e.g. Tensorflow) do not have installation support with pip at the timing of writing this tutorial.
 2. `conda activate synpred_env` - All the following steps should be performed in the environment. 
 
 Then, the user needs to install several packages:
@@ -65,9 +65,9 @@ After performing the changes previously pointed and properly installing and sett
 	Only the files in "support/CCLE_log_file.csv" will be called.
 	Input and output files at the "datasets" folder.
 8. `synpred_join_features.py` - Join the dataset's classes and IDs.
-9. `synpred_generate_dataset_optimized.py` - Run to generate dimensionality reduction (PCA) on the CCLE subsets.
+9. `synpred_generate_dataset_optimized.py` - Run this script to generate dimensionality reduction (PCA) on the CCLE subsets.
 	and keep only the cell lines present in the NCI-ALMANAC dataset.
-10. `synpred_keras.py` - Neural network with keras/tensorflow. To be called from the command line or script 11.
+10. `synpred_keras.py` - Neural network to be run with keras/tensorflow. To be called from the command line or script 11.
 11. `synpred_gridsearch_keras.py` - Run the gridsearch on the `synpred_keras.py`. Outputs to "evaluation_summary" folder. This makes use of only 100% of the dataset.
 12. `synpred_keras_final.py` - Neural network with keras/tensorflow after gridsearch. To be called from the command line or script 13.
 13. `synpred_best_keras_final.py` - Run and save the best keras models.
