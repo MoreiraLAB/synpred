@@ -37,7 +37,6 @@ Then, the user needs to install several packages, for which will require *admini
 7. `pip install tensorflow==2.3.1` - Install this version of tensorflow.
 8. `pip install scikit-learn` - Scikit-learn is required at many steps of the pipeline. 
 9. `pip install xgboost`- The package to use the Extreme Gradient Boosting methods needs to be installed separately from scikit-learn.
-10. `pip install h5py`- Allows storage in h5 format.
 
 **Stand-alone Deployment**
 
