@@ -99,5 +99,5 @@ After performing the changes previously pointed and properly installing and sett
 
 António J. Preto, Pedro Matos-Filipe, Joana Mourão and Irina S. Moreira
 
-*SynPred: Prediction of Drug Combination Effects in Cancer using Full-Agreement Synergy Metrics and Deep Learning*
+*SYNPRED: Prediction of Drug Combination Effects in Cancer using Different Synergy Metrics and Ensemble Learning*
 
