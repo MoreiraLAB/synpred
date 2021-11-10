@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 """
-Edit the two datasets,  with or without the concentrations.
 Extract 3 independent datasets depending on cell lines, drug combinations and single drugs, these samples will not appear in either the train or the test subsets.
 Write train and test files
 """
@@ -81,8 +80,6 @@ class split_file:
 		self.raw_data_file = input_dataset
 		self.opened_raw_data = pd.read_csv(self.raw_data_file, sep = CSV_SEP, header = 0)
 		self.opened_raw_data[["Drug1","Drug2"]] = self.opened_raw_data[["Drug1","Drug2"]].astype(int).astype(str)
-		if self.combination_mode == "with_concentrations":
-			self.opened_raw_data = self.opened_raw_data.drop(["response"], axis = 1)
 
 	def split_by_cell(self, number_of_cell_lines = 3, write_output = False):
 
@@ -203,12 +200,3 @@ split_object.generate_train_dataset(split_test_size = 0.2, \
 							cell_file = DATASETS_DICTIONARY["independent_cell"], \
 							drugs_file = DATASETS_DICTIONARY["independent_drugs"], \
 							drug_combinations_file = DATASETS_DICTIONARY["independent_drug_combinations"])
-
-split_object_concentrations = split_file(combination_mode = "with_concentrations", input_dataset = DATASETS_DICTIONARY["NCI_ALMANAC_with_combinations"])
-split_object_concentrations.generate_full_agreement()
-split_object_concentrations.generate_train_dataset(split_test_size = 0.2, \
-							train_output_file = DATASETS_DICTIONARY["train_concentration_dataset"], \
-							test_output_file = DATASETS_DICTIONARY["test_concentration_dataset"], \
-							cell_file = DATASETS_DICTIONARY["independent_cell_concentration"],\
-							drugs_file = DATASETS_DICTIONARY["independent_drugs_concentration"],\
-							drug_combinations_file = DATASETS_DICTIONARY["independent_drug_combinations_concentration"])

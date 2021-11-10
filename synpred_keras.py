@@ -1,7 +1,16 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """
 Script to deploy tensorflow for Gridsearch
 tensorflow version 2
 """
+
+__author__ = "A.J.Preto & Pedro Matos-Filipe"
+__email__ = "martinsgomes.jose@gmail.com"
+__group__ = "Data-Driven Molecular Design"
+__group_leader__ = "Irina S. Moreira"
+__project__ = "SynPred"
 
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
@@ -30,12 +39,6 @@ from synpred_variables import DATASET_FOLDER, INTERMEDIATE_SEP, \
 np.random.seed(RANDOM_STATE)
 random.seed(RANDOM_STATE)
 tf.compat.v1.set_random_seed(RANDOM_STATE)
-
-__author__ = "A.J.Preto & Pedro Matos-Filipe"
-__email__ = "martinsgomes.jose@gmail.com"
-__group__ = "Data-Driven Molecular Design"
-__group_leader__ = "Irina S. Moreira"
-__project__ = "SynPred"
 
 class neural_network:
 

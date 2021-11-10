@@ -41,9 +41,9 @@ def drug_features_extractor(molecule, drug_index = "B"):
 	Filters all features that returned stddev 0 during the making of the training dataset.
 	Outputs data as a simple list of scaled features (using sklearn scaler from construction of the training datset).
 	"""
-	head = pickle.load(open('/storage/agomes/synpred_web/resources/feature_mining/drug_features.pkl', 'rb'))
+	head = pickle.load(open(os.getcwd() + '/drug_features.pkl', 'rb'))
 	finger_row = list(mordredCalc(molecule)[head])
-	feature_scaler = pickle.load(open('/storage/agomes/synpred_web/resources/feature_mining/scaler_mordred.pkl', 'rb'))
+	feature_scaler = pickle.load(open(os.getcwd() + '/scaler_mordred.pkl', 'rb'))
 	if drug_index == "A":
 		mean_values = feature_scaler.mean_[0:int(feature_scaler.mean_.shape[0] / 2)]
 		var_values = feature_scaler.var_[0:int(feature_scaler.mean_.shape[0] / 2)]

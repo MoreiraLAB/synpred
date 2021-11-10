@@ -15,7 +15,7 @@ from synpred_variables import CSV_SEP, SYSTEM_SEP, PARAGRAPH_SEP, \
                             INTERMEDIATE_SEP, TAB_SEP, \
                             SCALED_CCLE_START, CCLE_ANNOTATION_FILE, \
                             DROPPABLE_COLUMNS, TARGET_CLASS_COLUMN, \
-                            RANDOM_STATE, CONC_DROPPABLE_COLUMNS
+                            RANDOM_STATE
 import random
 import numpy as np
 np.random.seed(RANDOM_STATE)
@@ -184,7 +184,7 @@ def prepare_dataset(input_train, input_test, drop_columns = DROPPABLE_COLUMNS, \
                     final_mode = False, final_reduction = "", final_preprocessing = ""):
     
     """
-    Helped function to prepare the dataset for training
+    Helper function to prepare the dataset for training
     """
     def column_handling(input_subset, columns_list = [], target_column = ""):
         """
@@ -208,20 +208,10 @@ def prepare_dataset(input_train, input_test, drop_columns = DROPPABLE_COLUMNS, \
         test_dataset = test_dataset.loc[test_dataset["full_agreement_val"] == 1]
     if sample_mode == True:
         train_dataset = train_dataset.sample(frac = sample_size, axis = 0)
-    """
-    train_class = train_dataset[target_column]
-    for current_col in drop_columns:
-        if current_col in list(train_dataset):
-            train_dataset = train_dataset.drop([current_col], axis = 1)
-    """
+    
     train_features, train_class = column_handling(train_dataset, columns_list = drop_columns, target_column = target_column)
     test_features, test_class = column_handling(test_dataset, columns_list = drop_columns, target_column = target_column)
-    """
-    test_class = test_dataset[target_column]
-    for current_col in drop_columns:
-        if current_col in list(test_dataset):
-            test_dataset = test_dataset.drop([current_col], axis = 1)
-    """
+
     if final_mode == False:
         return {"train_features": train_features, "train_class": train_class, \
                 "test_features": test_features, "test_class": test_class}
@@ -241,98 +231,6 @@ def prepare_dataset(input_train, input_test, drop_columns = DROPPABLE_COLUMNS, \
                 "cell_features": cell_features, "cell_class": cell_class, \
                 "drugs_features": drugs_features, "drugs_class": drugs_class, \
                 "combo_features": combo_features, "combo_class": combo_class}
-
-def conc_prepare_dataset(input_train = "", input_test = "", drop_columns = CONC_DROPPABLE_COLUMNS, \
-                    target_column = TARGET_CLASS_COLUMN, \
-                    sample_size = 1.0, sample_fraction_mode = False, task_type = "regression"):
-    
-    """
-    Helper function to prepare the dataset for training
-    """
-    import pandas as pd
-    def generate_class(input_row):
-        
-        """
-        Calculate the class based on the 5 metrics available for concentration
-        """
-        if (input_row["ZIP"] > 0) and (input_row["Bliss"] > 0) and \
-                (input_row["HSA"] > 0) and (input_row["Loewe"] > 0) and \
-                (input_row["combo_score"] > 0):
-            full_agreement = 1
-            full_agreement_val = 1
-        elif (input_row["ZIP"] <= 0) and (input_row["Bliss"] <= 0) and \
-                (input_row["HSA"] <= 0) and (input_row["Loewe"] <= 0) and \
-                (input_row["combo_score"] <= 0):
-            full_agreement = 0
-            full_agreement_val = 1
-        else:
-            full_agreement = 0
-            full_agreement_val = 0
-        return full_agreement, full_agreement_val
-
-    def normalize_concentration(input_table, target_col = ""):
-
-        """
-        Apply the normalization to the concentration columns - conc1 and conc2
-        """
-        from synpred_variables import CONCENTRATION_SCALING_FILE
-        opened_concentration_parameters = pd.read_csv(CONCENTRATION_SCALING_FILE, sep = CSV_SEP, header = 0)
-        output_col = []
-        try:
-            current_average = opened_concentration_parameters.loc[opened_concentration_parameters["concentration"] == target_col]["average"][0]
-        except:
-            current_average = opened_concentration_parameters.loc[opened_concentration_parameters["concentration"] == target_col]["average"][1]
-        try:
-            current_std = opened_concentration_parameters.loc[opened_concentration_parameters["concentration"] == target_col]["standard_deviation"][0]
-        except:
-            current_std = opened_concentration_parameters.loc[opened_concentration_parameters["concentration"] == target_col]["standard_deviation"][1]
-
-        output_col = (input_dataframe[target_col] - current_average) / current_std
-        return output_col
-
-    if sample_fraction_mode == True:
-
-        import h5py as h5
-        import pickle
-        from synpred_variables import H5_HEADER_PCA_FILLNA, DATASET_H5_TRAIN_PCA_FILLNA
-        with h5.File(DATASET_H5_TRAIN_PCA_FILLNA, "r") as h5_file:
-            datasets_list = list(h5_file.keys())
-            random.shuffle(datasets_list)
-            split_list = datasets_list[0:int(len(datasets_list)*sample_size)]
-            input_array = np.concatenate([np.array(h5_file[entry]) for entry in split_list], axis = 0)
-            with open(H5_HEADER_PCA_FILLNA,'rb') as header_pickle:
-                current_header  = pickle.load(file, encoding='bytes')
-            train_dataset = pd.DataFrame(input_array, columns = current_header)
-            test_dataset = pd.read_csv(input_test, sep = CSV_SEP, header = 0)
-
-    elif sample_fraction_mode == False:
-        train_dataset = pd.read_csv(input_train, sep = CSV_SEP, header = 0)
-        test_dataset = pd.read_csv(input_test, sep = CSV_SEP, header = 0)
-
-    train_dataset["conc1"] = normalize_concentration(train_dataset, "conc1")
-    train_dataset["conc2"] = normalize_concentration(train_dataset, "conc2")
-
-    test_dataset["conc1"] = normalize_concentration(test_dataset, "conc1")
-    test_dataset["conc2"] = normalize_concentration(test_dataset, "conc2")
-
-    if task_type == "classification":
-        train_dataset["full_agreement"], train_dataset["full_agreement_val"] = zip(*train_dataset.apply(lambda row: generate_class(row), axis = 1))
-        test_dataset["full_agreement"], test_dataset["full_agreement_val"] = zip(*test_dataset.apply(lambda row_test: generate_class(row_test), axis = 1))
-        train_dataset = train_dataset.loc[train_dataset["full_agreement_val"] == 1]
-        test_dataset = test_dataset.loc[test_dataset["full_agreement_val"] == 1]
-
-    train_class = train_dataset[target_column]
-    for current_col in drop_columns:
-        if current_col in list(train_dataset):
-            train_dataset = train_dataset.drop([current_col], axis = 1)
-    
-    test_class = test_dataset[target_column]
-    for current_col in drop_columns:
-        if current_col in list(test_dataset):
-            test_dataset = test_dataset.drop([current_col], axis = 1)
-
-    return {"train_features": train_dataset, "train_class": train_class, \
-            "test_features": test_dataset, "test_class": test_class}
 
 def identify_unique_drugs(input_table, drug_1_col = "Drug1", drug_2_col = "Drug2"):
 

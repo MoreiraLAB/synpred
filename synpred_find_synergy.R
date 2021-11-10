@@ -1,5 +1,5 @@
 ###
-#Author: P. Matos-Filipe
+#Author: A.J.Preto & P.Matos-Filipe
 #Group: Data-Driven Molecular Design
 #Group Leader: Irina S. Moreira
 #Project: SynPred
@@ -7,7 +7,7 @@
 
 library(synergyfinder)
 library(tidyverse)
-library(dply)
+library(dplyr)
 
 setwd(getwd())
 csv_files = list.files(pattern = "*.csv")
