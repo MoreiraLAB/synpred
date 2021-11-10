@@ -1,5 +1,5 @@
 # SynPred
-*Full Machine Learning Pipeline for the Synpred prediction and Stand-alone deployment*
+*Full Machine Learning Pipeline for the drug synergy prediction and Stand-alone deployment*
 
 **Description**
 
