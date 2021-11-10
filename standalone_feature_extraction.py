@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Extract sequence based features on a protocol including window size
+Extract the omics based features
 """
 
 __author__ = "A.J. Preto"

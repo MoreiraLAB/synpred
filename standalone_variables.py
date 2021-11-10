@@ -1,6 +1,17 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """
-List all usable variables
+Variables for the Synpred Standalone code
 """
+
+__author__ = "A.J. Preto"
+__email__ = "martinsgomes.jose@gmail.com"
+__group__ = "Data-Driven Molecular Design"
+__group_leader__ = "Irina S. Moreira"
+__project__ = "SynPred"
+
+import os
 
 def process_cells_file(input_file, mode = "dropdown", \
                         target_column = "", input_cell_type = ""):
@@ -20,7 +31,10 @@ def process_cells_file(input_file, mode = "dropdown", \
 """
 Folder paths
 """
-HOME = "/insert/your/path"
+HOME = ""
+if HOME == "":
+    HOME = os.getcwd()
+
 SYSTEM_SEP = "/"
 TEMPLATES = HOME + SYSTEM_SEP + "templates"
 UPLOAD_FOLDER = HOME + SYSTEM_SEP + "uploads"
