@@ -11,8 +11,6 @@ __group__ = "Data-Driven Molecular Design"
 __group_leader__ = "Irina S. Moreira"
 __project__ = "SynPred"
 
-import os
-
 """
 Global variables
 """
@@ -27,11 +25,7 @@ SDF_TERMINATION = ".sdf"
 PKL_TERMINATION = ".pkl"
 TXT_TERMINATION = ".txt"
 SMILE_TERMINATION = ".smile"
-
-DEFAULT_LOCATION = ""
-if DEFAULT_LOCATION == "":
-    DEFAULT_LOCATION = os.getcwd()
-
+DEFAULT_LOCATION = "/storage/agomes/synpred"
 DATASET_FOLDER =  DEFAULT_LOCATION + SYSTEM_SEP + "datasets"
 SPLIT_TABLES_FOLDER = DEFAULT_LOCATION + SYSTEM_SEP + "split_tables"
 CCLE_FOLDER = DEFAULT_LOCATION + SYSTEM_SEP + "CCLE"
@@ -47,9 +41,14 @@ EVALUATION_DL_INDEX = "gridsearch_index" + CSV_TERMINATION
 EVALUATION_DL_CUSTOM_INDEX = "gridsearch_index_custom" + CSV_TERMINATION
 RESOURCES_FOLDER = DEFAULT_LOCATION + SYSTEM_SEP + "resources"
 ML_GRIDSEARCH_RESULTS = SUPPORT_FOLDER + SYSTEM_SEP + "ML_gridsearch.csv"
+ML_DRUGCOMB_GRIDSEARCH_RESULTS = SUPPORT_FOLDER + SYSTEM_SEP + "ML_gridsearch.csv"
+ML_DRUGCOMB_GRIDSEARCH_RESULTS_PROCESSED = SUPPORT_FOLDER + SYSTEM_SEP + "ML_gridsearch_processed.csv"
 ML_GRIDSEARCH_PARAMETERS = SUPPORT_FOLDER + SYSTEM_SEP + "ML_gridsearch_parameters.csv"
+ML_DRUGCOMB_GRIDSEARCH_PARAMETERS = SUPPORT_FOLDER + SYSTEM_SEP + "ML_drugcomb_gridsearch_parameters.csv"
 DL_GRIDSEARCH_RESULTS = SUPPORT_FOLDER + SYSTEM_SEP + "DL_gridsearch_index.csv"
+DL_COMBODB_GRIDSEARCH_RESULTS = SUPPORT_FOLDER + SYSTEM_SEP + "DL_combodb_gridsearch_index.csv"
 DL_GRIDSEARCH_PARAMETERS = SUPPORT_FOLDER + SYSTEM_SEP + "DL_gridsearch_parameters.csv"
+DL_COMBODB_GRIDSEARCH_PARAMETERS = SUPPORT_FOLDER + SYSTEM_SEP + "DL_combodb_gridsearch_parameters.csv"
 DL_ENSEMBLE_PARAMETERS = SUPPORT_FOLDER + SYSTEM_SEP + "DL_ensemble_parameters.csv"
 BEST_PARAMETERS_KERAS_FILE = SUPPORT_FOLDER + SYSTEM_SEP + "gridsearch_index" + CSV_TERMINATION
 BEST_PARAMETERS_INDEX_FILE = SUPPORT_FOLDER + SYSTEM_SEP + "gridsearch_index_after_grid" + CSV_TERMINATION
@@ -63,47 +62,91 @@ CLASS_TRAIN_DATASET = DATASET_FOLDER + SYSTEM_SEP + "train_classes" + CSV_TERMIN
 CLASS_TEST_DATASET = DATASET_FOLDER + SYSTEM_SEP + "test_classes" + CSV_TERMINATION 
 
 DATASETS_DICTIONARY = {"NCI_ALMANAC": DATASET_FOLDER + SYSTEM_SEP + "NCI_ALMANAC" + CSV_TERMINATION, \
-                        "NCI_ALMANAC_synfinder": DATASET_FOLDER + SYSTEM_SEP + "calculated_class_NCI_ALMANAC" + CSV_TERMINATION, \
-                        "NCI_ALMANAC_classes": DATASET_FOLDER + SYSTEM_SEP + "NCI_ALMANAC_no_concentrations" + CSV_TERMINATION, \
-                        "NCI_ALMANAC_comboscore" : DATASET_FOLDER + SYSTEM_SEP + "comboscore_processed_NCI_ALMANAC" + CSV_TERMINATION, \
-                        "NCI_ALMANAC_with_combinations": DATASET_FOLDER + SYSTEM_SEP + "NCI_ALMANAC_drug_combinations" + CSV_TERMINATION, \
+			"NCI_ALMANAC_synfinder": DATASET_FOLDER + SYSTEM_SEP + "calculated_class_NCI_ALMANAC" + CSV_TERMINATION, \
+			"NCI_ALMANAC_classes": DATASET_FOLDER + SYSTEM_SEP + "NCI_ALMANAC_no_concentrations" + CSV_TERMINATION, \
+			"NCI_ALMANAC_comboscore" : DATASET_FOLDER + SYSTEM_SEP + "comboscore_processed_NCI_ALMANAC" + CSV_TERMINATION, \
+			"NCI_ALMANAC_with_combinations": DATASET_FOLDER + SYSTEM_SEP + "NCI_ALMANAC_drug_combinations" + CSV_TERMINATION, \
 
-                        "train_dataset": DATASET_FOLDER + SYSTEM_SEP + "train" + CSV_TERMINATION, \
-                        "test_dataset": DATASET_FOLDER + SYSTEM_SEP + "test" + CSV_TERMINATION, \
-                        "independent_cell": DATASET_FOLDER + SYSTEM_SEP + "independent_cells" + CSV_TERMINATION, \
-                        "independent_drugs": DATASET_FOLDER + SYSTEM_SEP + "independent_drugs" + CSV_TERMINATION, \
-                        "independent_drug_combinations": DATASET_FOLDER + SYSTEM_SEP + "independent_drug_combinations" + CSV_TERMINATION, \
+			"DrugComb": DATASET_FOLDER + SYSTEM_SEP + "drug_comb" + CSV_TERMINATION, \
+			"final_drugcomb": DATASET_FOLDER + SYSTEM_SEP + "final_combodb_for_synpred" + CSV_TERMINATION, \
 
-                        "PCA_train_dataset_dropna": DATASET_FOLDER + SYSTEM_SEP + "PCA_train_dropna" + CSV_TERMINATION, \
-                        "PCA_test_dataset_dropna": DATASET_FOLDER + SYSTEM_SEP + "PCA_test_dropna" + CSV_TERMINATION, \
-                        "PCA_independent_cell_dropna": DATASET_FOLDER + SYSTEM_SEP + "PCA_independent_cell_dropna" + CSV_TERMINATION, \
-                        "PCA_independent_drugs_dropna": DATASET_FOLDER + SYSTEM_SEP + "PCA_independent_drugs_dropna" + CSV_TERMINATION, \
-                        "PCA_independent_drug_combinations_dropna": DATASET_FOLDER + SYSTEM_SEP + "PCA_independent_drug_combinations_dropna" + CSV_TERMINATION, \
+			"train_dataset": DATASET_FOLDER + SYSTEM_SEP + "train" + CSV_TERMINATION, \
+			"test_dataset": DATASET_FOLDER + SYSTEM_SEP + "test" + CSV_TERMINATION, \
+			"independent_cell": DATASET_FOLDER + SYSTEM_SEP + "independent_cells" + CSV_TERMINATION, \
+			"independent_drugs": DATASET_FOLDER + SYSTEM_SEP + "independent_drugs" + CSV_TERMINATION, \
+			"independent_drug_combinations": DATASET_FOLDER + SYSTEM_SEP + "independent_drug_combinations" + CSV_TERMINATION, \
+			
+			"PCA_train_dataset_dropna": DATASET_FOLDER + SYSTEM_SEP + "PCA_train_dropna" + CSV_TERMINATION, \
+			"PCA_test_dataset_dropna": DATASET_FOLDER + SYSTEM_SEP + "PCA_test_dropna" + CSV_TERMINATION, \
+			"PCA_independent_cell_dropna": DATASET_FOLDER + SYSTEM_SEP + "PCA_independent_cell_dropna" + CSV_TERMINATION, \
+			"PCA_independent_drugs_dropna": DATASET_FOLDER + SYSTEM_SEP + "PCA_independent_drugs_dropna" + CSV_TERMINATION, \
+			"PCA_independent_drug_combinations_dropna": DATASET_FOLDER + SYSTEM_SEP + "PCA_independent_drug_combinations_dropna" + CSV_TERMINATION, \
 
-                        "autoencoder_train_dataset_dropna": DATASET_FOLDER + SYSTEM_SEP + "autoencoder_train_dropna" + CSV_TERMINATION, \
-                        "autoencoder_test_dataset_dropna": DATASET_FOLDER + SYSTEM_SEP + "autoencoder_test_dropna" + CSV_TERMINATION, \
-                        "autoencoder_independent_cell_dropna": DATASET_FOLDER + SYSTEM_SEP + "autoencoder_independent_cell_dropna" + CSV_TERMINATION, \
-                        "autoencoder_independent_drugs_dropna": DATASET_FOLDER + SYSTEM_SEP + "autoencoder_independent_drugs_dropna" + CSV_TERMINATION, \
-                        "autoencoder_independent_drug_combinations_dropna": DATASET_FOLDER + SYSTEM_SEP + "autoencoder_independent_drug_combinations_dropna" + CSV_TERMINATION, \
-                        
-                        "PCA_train_dataset_fillna": DATASET_FOLDER + SYSTEM_SEP + "PCA_train_fillna" + CSV_TERMINATION, \
-                        "PCA_test_dataset_fillna": DATASET_FOLDER + SYSTEM_SEP + "PCA_test_fillna" + CSV_TERMINATION, \
-                        "PCA_independent_cell_fillna": DATASET_FOLDER + SYSTEM_SEP + "PCA_independent_cell_fillna" + CSV_TERMINATION, \
-                        "PCA_independent_drugs_fillna": DATASET_FOLDER + SYSTEM_SEP + "PCA_independent_drugs_fillna" + CSV_TERMINATION, \
-                        "PCA_independent_drug_combinations_fillna": DATASET_FOLDER + SYSTEM_SEP + "PCA_independent_drug_combinations_fillna" + CSV_TERMINATION, \
+			"autoencoder_train_dataset_dropna": DATASET_FOLDER + SYSTEM_SEP + "autoencoder_train_dropna" + CSV_TERMINATION, \
+			"autoencoder_test_dataset_dropna": DATASET_FOLDER + SYSTEM_SEP + "autoencoder_test_dropna" + CSV_TERMINATION, \
+			"autoencoder_independent_cell_dropna": DATASET_FOLDER + SYSTEM_SEP + "autoencoder_independent_cell_dropna" + CSV_TERMINATION, \
+			"autoencoder_independent_drugs_dropna": DATASET_FOLDER + SYSTEM_SEP + "autoencoder_independent_drugs_dropna" + CSV_TERMINATION, \
+			"autoencoder_independent_drug_combinations_dropna": DATASET_FOLDER + SYSTEM_SEP + "autoencoder_independent_drug_combinations_dropna" + CSV_TERMINATION, \
+			
+			"PCA_train_dataset_fillna": DATASET_FOLDER + SYSTEM_SEP + "PCA_train_fillna" + CSV_TERMINATION, \
+			"PCA_test_dataset_fillna": DATASET_FOLDER + SYSTEM_SEP + "PCA_test_fillna" + CSV_TERMINATION, \
+			"PCA_independent_cell_fillna": DATASET_FOLDER + SYSTEM_SEP + "PCA_independent_cell_fillna" + CSV_TERMINATION, \
+			"PCA_independent_drugs_fillna": DATASET_FOLDER + SYSTEM_SEP + "PCA_independent_drugs_fillna" + CSV_TERMINATION, \
+			"PCA_independent_drug_combinations_fillna": DATASET_FOLDER + SYSTEM_SEP + "PCA_independent_drug_combinations_fillna" + CSV_TERMINATION, \
 
-                        "autoencoder_train_dataset_fillna": DATASET_FOLDER + SYSTEM_SEP + "autoencoder_train_fillna" + CSV_TERMINATION, \
-                        "autoencoder_test_dataset_fillna": DATASET_FOLDER + SYSTEM_SEP + "autoencoder_test_fillna" + CSV_TERMINATION, \
-                        "autoencoder_independent_cell_fillna": DATASET_FOLDER + SYSTEM_SEP + "autoencoder_independent_cell_fillna" + CSV_TERMINATION, \
-                        "autoencoder_independent_drugs_fillna": DATASET_FOLDER + SYSTEM_SEP + "autoencoder_independent_drugs_fillna" + CSV_TERMINATION, \
-                        "autoencoder_independent_drug_combinations_fillna": DATASET_FOLDER + SYSTEM_SEP + "autoencoder_independent_drug_combinations_fillna" + CSV_TERMINATION, \
-                        }
+			"autoencoder_train_dataset_fillna": DATASET_FOLDER + SYSTEM_SEP + "autoencoder_train_fillna" + CSV_TERMINATION, \
+			"autoencoder_test_dataset_fillna": DATASET_FOLDER + SYSTEM_SEP + "autoencoder_test_fillna" + CSV_TERMINATION, \
+			"autoencoder_independent_cell_fillna": DATASET_FOLDER + SYSTEM_SEP + "autoencoder_independent_cell_fillna" + CSV_TERMINATION, \
+			"autoencoder_independent_drugs_fillna": DATASET_FOLDER + SYSTEM_SEP + "autoencoder_independent_drugs_fillna" + CSV_TERMINATION, \
+			"autoencoder_independent_drug_combinations_fillna": DATASET_FOLDER + SYSTEM_SEP + "autoencoder_independent_drug_combinations_fillna" + CSV_TERMINATION, \
+			
+			"combodb": DATASET_FOLDER + SYSTEM_SEP + "combodb_for_synpred" + CSV_TERMINATION, \
+			"combodb_train_dataset": DATASET_FOLDER + SYSTEM_SEP + "combodb_train" + CSV_TERMINATION, \
+			"combodb_test_dataset": DATASET_FOLDER + SYSTEM_SEP + "combodb_test" + CSV_TERMINATION, \
+			"combodb_independent_cell": DATASET_FOLDER + SYSTEM_SEP + "combodb_independent_cells" + CSV_TERMINATION, \
+			"combodb_independent_drugs": DATASET_FOLDER + SYSTEM_SEP + "combodb_independent_drugs" + CSV_TERMINATION, \
+			"combodb_independent_drug_combinations": DATASET_FOLDER + SYSTEM_SEP + "combodb_independent_drug_combinations" + CSV_TERMINATION, \
+
+			"combodb_PCA_train_dataset_fillna": DATASET_FOLDER + SYSTEM_SEP + "combodb_PCA_train_fillna" + CSV_TERMINATION, \
+			"combodb_PCA_test_dataset_fillna": DATASET_FOLDER + SYSTEM_SEP + "combodb_PCA_test_fillna" + CSV_TERMINATION, \
+			"combodb_PCA_independent_cell_fillna": DATASET_FOLDER + SYSTEM_SEP + "combodb_PCA_independent_cell_fillna" + CSV_TERMINATION, \
+			"combodb_PCA_independent_drugs_fillna": DATASET_FOLDER + SYSTEM_SEP + "combodb_PCA_independent_drugs_fillna" + CSV_TERMINATION, \
+			"combodb_PCA_independent_drug_combinations_fillna": DATASET_FOLDER + SYSTEM_SEP + "combodb_PCA_independent_drug_combinations_fillna" + CSV_TERMINATION, \
+			
+			"combodb_PCA_train_dataset_dropna": DATASET_FOLDER + SYSTEM_SEP + "combodb_PCA_train_dropna" + CSV_TERMINATION, \
+			"combodb_PCA_test_dataset_dropna": DATASET_FOLDER + SYSTEM_SEP + "combodb_PCA_test_dropna" + CSV_TERMINATION, \
+			"combodb_PCA_independent_cell_dropna": DATASET_FOLDER + SYSTEM_SEP + "combodb_PCA_independent_cell_dropna" + CSV_TERMINATION, \
+			"combodb_PCA_independent_drugs_dropna": DATASET_FOLDER + SYSTEM_SEP + "combodb_PCA_independent_drugs_dropna" + CSV_TERMINATION, \
+			"combodb_PCA_independent_drug_combinations_dropna": DATASET_FOLDER + SYSTEM_SEP + "combodb_PCA_independent_drug_combinations_dropna" + CSV_TERMINATION, \
+
+			"combodb_autoencoder_train_dataset_dropna": DATASET_FOLDER + SYSTEM_SEP + "combodb_autoencoder_train_dropna" + CSV_TERMINATION, \
+			"combodb_autoencoder_test_dataset_dropna": DATASET_FOLDER + SYSTEM_SEP + "combodb_autoencoder_test_dropna" + CSV_TERMINATION, \
+			"combodb_autoencoder_independent_cell_dropna": DATASET_FOLDER + SYSTEM_SEP + "combodb_autoencoder_independent_cell_dropna" + CSV_TERMINATION, \
+			"combodb_autoencoder_independent_drugs_dropna": DATASET_FOLDER + SYSTEM_SEP + "combodb_autoencoder_independent_drugs_dropna" + CSV_TERMINATION, \
+			"combodb_autoencoder_independent_drug_combinations_dropna": DATASET_FOLDER + SYSTEM_SEP + "combodb_autoencoder_independent_drug_combinations_dropna" + CSV_TERMINATION, \
+
+			"combodb_autoencoder_train_dataset_fillna": DATASET_FOLDER + SYSTEM_SEP + "combodb_autoencoder_train_fillna" + CSV_TERMINATION, \
+			"combodb_autoencoder_test_dataset_fillna": DATASET_FOLDER + SYSTEM_SEP + "combodb_autoencoder_test_fillna" + CSV_TERMINATION, \
+			"combodb_autoencoder_independent_cell_fillna": DATASET_FOLDER + SYSTEM_SEP + "combodb_autoencoder_independent_cell_fillna" + CSV_TERMINATION, \
+			"combodb_autoencoder_independent_drugs_fillna": DATASET_FOLDER + SYSTEM_SEP + "combodb_autoencoder_independent_drugs_fillna" + CSV_TERMINATION, \
+			"combodb_autoencoder_independent_drug_combinations_fillna": DATASET_FOLDER + SYSTEM_SEP + "combodb_autoencoder_independent_drug_combinations_fillna" + CSV_TERMINATION
+			}
+
 DATASETS_DICTIONARY_NO_CONCENTRATION = {"PCA_fillna": [DATASETS_DICTIONARY["PCA_train_dataset_fillna"], DATASETS_DICTIONARY["PCA_test_dataset_fillna"]], \
                         "PCA_dropna": [DATASETS_DICTIONARY["PCA_train_dataset_dropna"], DATASETS_DICTIONARY["PCA_test_dataset_dropna"]], \
                         "autoencoder_fillna": [DATASETS_DICTIONARY["autoencoder_train_dataset_fillna"], DATASETS_DICTIONARY["autoencoder_test_dataset_fillna"]], \
                         "autoencoder_dropna": [DATASETS_DICTIONARY["autoencoder_train_dataset_dropna"], DATASETS_DICTIONARY["autoencoder_test_dataset_dropna"]]}
-     
+
+DATASETS_DICTIONARY_DRUGCOMB = {"PCA_fillna": [DATASETS_DICTIONARY["combodb_PCA_train_dataset_fillna"], DATASETS_DICTIONARY["combodb_PCA_test_dataset_fillna"]], \
+                        "PCA_dropna": [DATASETS_DICTIONARY["combodb_PCA_train_dataset_dropna"], DATASETS_DICTIONARY["combodb_PCA_test_dataset_dropna"]], \
+                        "autoencoder_fillna": [DATASETS_DICTIONARY["combodb_autoencoder_train_dataset_fillna"], DATASETS_DICTIONARY["combodb_autoencoder_test_dataset_fillna"]], \
+                        "autoencoder_dropna": [DATASETS_DICTIONARY["combodb_autoencoder_train_dataset_dropna"], DATASETS_DICTIONARY["combodb_autoencoder_test_dataset_dropna"]]}
+  
+DATASET_H5_TRAIN_PCA_FILLNA = DATASET_FOLDER + SYSTEM_SEP + "PCA_train_concentration_fillna.h5"
+H5_HEADER_PCA_FILLNA = SUPPORT_FOLDER + SYSTEM_SEP + "concentration_header.pkl"
+
 COLUMN_CLASSES = ["ZIP","Bliss","HSA", "Loewe"]
+COMBODB_COLUMN_CLASS = ["synergy_zip","synergy_loewe","synergy_hsa","synergy_bliss","css_ri"]
 FULL_AGREEMENT_COLUMN_NAME = "full_agreement"
 
 SCALER_MORDRED_FILE = "scaler_mordred.pkl"
@@ -142,18 +185,20 @@ PCA_PLOT_FILE = SUPPORT_FOLDER + SYSTEM_SEP + "PCA_plot.png"
 PCA_TABLE_FILE = SUPPORT_FOLDER + SYSTEM_SEP + "PCA_table.csv"
 AUTOENCODER_LOG_FILE = SUPPORT_FOLDER + SYSTEM_SEP + "autoencoder_scores.csv"
 MORDRED_RAW_FILE = SUPPORT_FOLDER + SYSTEM_SEP + "mordred_features_clean.csv"
+MORDRED_RAW_COMBODB_FILE = SUPPORT_FOLDER + SYSTEM_SEP + "mordred_features_combodb_clean.csv"
 MORDRED_PROCESSED_FILE = SUPPORT_FOLDER + SYSTEM_SEP + "mordred_features_normalized.csv"
+MORDRED_PROCESSED_COMBODB_FILE = SUPPORT_FOLDER + SYSTEM_SEP + "mordred_features_combodb_normalized.csv"
 CORRECTION_DICTIONARY = {"CAKI-1":"Caki-1","NCI-H322M":"NCI-H322",
-                "MDA-MB-231/ATCC":"MDA-MB-231","A498":"A-498","OVCAR-3":"NIH:OVCAR-3",
-                "HS 578T":"Hs 578T","MDA-MB-435":"MDA-MB-435S","786-0":"786-O",
-                "MALME-3M":"Malme-3M","HL-60(TB)":"HL-60","SW-620":"SW620",
-                "HCT-116":"HCT 116","DU-145":"DU 145","A549/ATCC":"A549",
-                "U251":"U-251 MG","RPMI-8226":"RPMI 8226","HT29":"HT-29",
-                "SR":"SR-786","TK-10":"TK10","SF-268":"SF268",
-                "SF-539":"SF539","SNB-75":"SNB75","HCC-2998":"HCC2998",
-                "NCI/ADR-RES":"ADRRES","RXF 393":"RXF393","SN12C":"SN-12C",
-                "CCRF-CEM":"CCRFCEM"}
-DROPPABLE_COLUMNS = ['cell', 'Drug1', 'Drug2', 'ZIP', 'Bliss', 'HSA', 'Loewe','full_agreement',"combo_score","conc1","conc2","block_id","full_agreement_val"]
+		"MDA-MB-231/ATCC":"MDA-MB-231","A498":"A-498","OVCAR-3":"NIH:OVCAR-3",
+		"HS 578T":"Hs 578T","MDA-MB-435":"MDA-MB-435S","786-0":"786-O",
+		"MALME-3M":"Malme-3M","HL-60(TB)":"HL-60","SW-620":"SW620",
+		"HCT-116":"HCT 116","DU-145":"DU 145","A549/ATCC":"A549",
+		"U251":"U-251 MG","RPMI-8226":"RPMI 8226","HT29":"HT-29",
+		"SR":"SR-786","TK-10":"TK10","SF-268":"SF268",
+		"SF-539":"SF539","SNB-75":"SNB75","HCC-2998":"HCC2998",
+		"NCI/ADR-RES":"ADRRES","RXF 393":"RXF393","SN12C":"SN-12C",
+		"CCRF-CEM":"CCRFCEM"}
+DROPPABLE_COLUMNS = ['cell', 'Drug1', 'Drug2', 'ZIP', 'Bliss', 'HSA', 'Loewe','full_agreement',"combo_score","conc1","conc2","block_id","full_agreement_val","CSS-RI"]
 BLOCK_ID_COL = "block_id"
 TARGET_CLASS_COLUMN = ["full_agreement"]
 RANDOM_STATE = 42
@@ -173,3 +218,4 @@ CELL_TYPES = {
 METRICS_CLASSIFICATION = ["Accuracy","Precision","Recall","AUC","F1-value"]
 METRICS_REGRESSION = ["RMSE","MSE","Pearson","r^2","MAE","Spearman"]
 POSSIBLE_TARGETS = ["Loewe","Bliss","ZIP","HSA","full_agreement"]
+POSSIBLE_TARGETS_DRUGCOMB = ["Loewe","Bliss","ZIP","HSA","CSS-RI","full_agreement"]

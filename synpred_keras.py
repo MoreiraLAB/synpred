@@ -1,16 +1,7 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 """
 Script to deploy tensorflow for Gridsearch
 tensorflow version 2
 """
-
-__author__ = "A.J.Preto & Pedro Matos-Filipe"
-__email__ = "martinsgomes.jose@gmail.com"
-__group__ = "Data-Driven Molecular Design"
-__group_leader__ = "Irina S. Moreira"
-__project__ = "SynPred"
 
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
@@ -39,6 +30,12 @@ from synpred_variables import DATASET_FOLDER, INTERMEDIATE_SEP, \
 np.random.seed(RANDOM_STATE)
 random.seed(RANDOM_STATE)
 tf.compat.v1.set_random_seed(RANDOM_STATE)
+
+__author__ = "A.J.Preto & Pedro Matos-Filipe"
+__email__ = "martinsgomes.jose@gmail.com"
+__group__ = "Data-Driven Molecular Design"
+__group_leader__ = "Irina S. Moreira"
+__project__ = "SynPred"
 
 class neural_network:
 
@@ -70,7 +67,7 @@ class neural_network:
             self.model.add(Dense(1, activation = 'linear'))
 
 def prepare_dataset(file = '', method = 'full_agreement', \
-            sample_fraction = 0.1, sample_fraction_mode = False, \
+            sample_fraction = 0.05, sample_fraction_mode = False, \
             task_type = "regression"):
     """
     Prepare the dataset to be trained
@@ -101,7 +98,7 @@ def model_training(dataset, method, input_model, \
     Train the dataset
     """
     names, features, target = prepare_dataset(file = dataset, method = method, \
-                                                sample_fraction = 0.1, sample_fraction_mode = True, \
+                                                sample_fraction = 0.05, sample_fraction_mode = True, \
                                                 task_type = problem_type)
     history = input_model.model.fit(x = features, y = target, epochs = 250, validation_split = 0.10)
     if save_model == True:
@@ -122,16 +119,16 @@ else:
     problem_type = "regression"
 
 method = target_col
-train = DATASET_FOLDER + SYSTEM_SEP + input_mode.split(INTERMEDIATE_SEP)[0] + INTERMEDIATE_SEP + \
-            "train" + INTERMEDIATE_SEP + input_mode.split(INTERMEDIATE_SEP)[1] + ".csv"
-test = DATASET_FOLDER + SYSTEM_SEP + input_mode.split(INTERMEDIATE_SEP)[0] + INTERMEDIATE_SEP + \
-            "test" + INTERMEDIATE_SEP + input_mode.split(INTERMEDIATE_SEP)[1] + ".csv"
+train = DATASET_FOLDER + SYSTEM_SEP + input_mode.split(INTERMEDIATE_SEP)[0] + INTERMEDIATE_SEP + input_mode.split(INTERMEDIATE_SEP)[1] + INTERMEDIATE_SEP + \
+            "train" + INTERMEDIATE_SEP + input_mode.split(INTERMEDIATE_SEP)[2] + ".csv"
+test = DATASET_FOLDER + SYSTEM_SEP + input_mode.split(INTERMEDIATE_SEP)[0] + INTERMEDIATE_SEP + input_mode.split(INTERMEDIATE_SEP)[1] + INTERMEDIATE_SEP + \
+            "test" + INTERMEDIATE_SEP + input_mode.split(INTERMEDIATE_SEP)[2] + ".csv"
 outp = sys.argv[-1]
 input_architecture = [int(x) for x in ast.literal_eval(sys.argv[1])]
 
-if input_mode.split(INTERMEDIATE_SEP)[0] == "PCA":
+if input_mode.split(INTERMEDIATE_SEP)[1] == "PCA":
     input_features = 1347
-elif input_mode.split(INTERMEDIATE_SEP)[0] == "autoencoder":
+elif input_mode.split(INTERMEDIATE_SEP)[1] == "autoencoder":
     input_features = 4229
 
 raw_model =  neural_network(input_architecture, input_features, \

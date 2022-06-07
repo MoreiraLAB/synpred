@@ -184,7 +184,7 @@ def prepare_dataset(input_train, input_test, drop_columns = DROPPABLE_COLUMNS, \
                     final_mode = False, final_reduction = "", final_preprocessing = ""):
     
     """
-    Helper function to prepare the dataset for training
+    Helped function to prepare the dataset for training
     """
     def column_handling(input_subset, columns_list = [], target_column = ""):
         """
@@ -208,7 +208,7 @@ def prepare_dataset(input_train, input_test, drop_columns = DROPPABLE_COLUMNS, \
         test_dataset = test_dataset.loc[test_dataset["full_agreement_val"] == 1]
     if sample_mode == True:
         train_dataset = train_dataset.sample(frac = sample_size, axis = 0)
-    
+
     train_features, train_class = column_handling(train_dataset, columns_list = drop_columns, target_column = target_column)
     test_features, test_class = column_handling(test_dataset, columns_list = drop_columns, target_column = target_column)
 

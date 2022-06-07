@@ -170,14 +170,12 @@ def extend_list(input_list, extend_dictionary = alternative_ID_file()):
 		output_list.append(x_ammended)
 	return output_list
 
-def filter_out(target_file, input_files_list):
+def filter_out(target_file, input_files_list, target_column = NCI_ALMANAC_CELL_COLUMN, sep = CSV_SEP):
 
 	"""
 	Subset the CCLE large datasets by comparing the ids to the dataset
 	"""
-	import difflib
-	CORRECT_DICTIONARY = {}
-	opened_target = pd.read_csv(target_file, header = 0, usecols = [NCI_ALMANAC_CELL_COLUMN])[NCI_ALMANAC_CELL_COLUMN].unique().tolist()
+	opened_target = pd.read_csv(target_file, header = 0, sep = sep, usecols = [target_column])[target_column].unique().tolist()
 	extended_id_list = extend_list(opened_target)
 	for current_subset in input_files_list:
 		file_location = CCLE_FOLDER + SYSTEM_SEP + current_subset  + INTERMEDIATE_SEP + SUBSET_CCLE
@@ -219,4 +217,5 @@ def filter_out(target_file, input_files_list):
 
 generate_raw_CCLE(dataset_log_file = CCLE_DATASET_LOG_FILE)
 unique_CCLE = locate_unique_CCLE()
-filter_out(DATASETS_DICTIONARY["NCI_ALMANAC"], unique_CCLE)
+#filter_out(DATASETS_DICTIONARY["NCI_ALMANAC"], unique_CCLE, )
+filter_out(DATASETS_DICTIONARY["combodb"], unique_CCLE, target_column = "cell_line_name", sep = ";" )

@@ -20,7 +20,7 @@ import pickle
 from standalone_variables import HOME, SUPPORT_FOLDER, SYSTEM_SEP, SEP, \
                         CELL_LINES_COLUMN, PROCESSED_TERMINATION, \
                         PREDICTION_COL_NAME, MODELS_DICTIONARY, REFERENCE_MODELS_LIST, \
-                        ENSEMBLE_MODELS_DICTIONARY
+                        ENSEMBLE_MODELS_DICTIONARY, ML_MODELS_FOLDER
 import standalone_feature_extraction
 from tensorflow import keras
 from tensorflow.keras.models import load_model
@@ -76,7 +76,9 @@ def predict_instances(input_table):
     current_dictionary, ensemble_dictionary = {}, {}
     for current_reference_model in REFERENCE_MODELS_LIST:
         current_dictionary[current_reference_model] = {}
+        print("===Current reference model===", current_reference_model)
         for current_model in MODELS_DICTIONARY[current_reference_model]:
+            print("=Current model=", current_model)
             start = current_model.split("/")[-1].split("_")[0]
             if start == "PCA":
                 current_mode = "ML"
@@ -91,8 +93,10 @@ def predict_instances(input_table):
 
     DL_ensemble = {}
     for current_ensemble_reference_model in REFERENCE_MODELS_LIST:
-        DL_ensemble[current_ensemble_reference_model] = probability_features(load_model(ENSEMBLE_MODELS_DICTIONARY[current_ensemble_reference_model]), \
-                        ensemble_dictionary[current_ensemble_reference_model], input_mode = "DL") 
+        print("==Current ensemble reference model==", current_ensemble_reference_model)
+        ensemble_predictions = load_model(ENSEMBLE_MODELS_DICTIONARY[current_ensemble_reference_model]).predict(ensemble_dictionary[current_ensemble_reference_model]).tolist()
+        DL_ensemble[current_ensemble_reference_model] = [x[0] for x in ensemble_predictions]
+        
     return pd.DataFrame(DL_ensemble)
 
 def generate_voting_column(input_table):
@@ -113,28 +117,22 @@ def generate_voting_column(input_table):
             current_count += 1
         if current_row["HSA"] > 0.0:
             current_count += 1
+        if current_row["CSS"] > 0.0:
+            current_count += 1
         voting_column.append(current_count)
-
     return voting_column
 
 input_file = sys.argv[1]
-opened_file = pd.read_csv(input_file, header = 0, sep = ",")
-prediction_loc = input_file.split(".")[0] + "_prediction.csv"
+opened_file = pd.read_csv(input_file, header = 0, sep = ";").drop_duplicates().reset_index(drop = True)
 
-first = True
-for index, current_row in opened_file.iterrows():
-    try:
-        if first == True:
-            results_dataframe = standalone_feature_extraction.generate_features_file(current_row["Cell"], current_row["Drug1"], current_row["Drug2"])
-            first = False
-        elif first == False:
-            results_dataframe = pd.concat([results_dataframe, \
-                standalone_feature_extraction.generate_features_file(current_row["Cell"], current_row["Drug1"], current_row["Drug2"])], axis = 0)
-    except:
-        continue
+results_dataframe, drop_indexes = standalone_feature_extraction.generate_features_dataframe(opened_file)
+#print(results_dataframe)
+#sys.exit()
+prediction_loc = input_file.split(".")[0] + "_prediction.csv"
 
 predictions_table = predict_instances(results_dataframe)
 final_table = pd.concat([opened_file, predictions_table], axis = 1)
+final_table = final_table.drop(drop_indexes, axis = 0).reset_index(drop = True)
 final_table["Synergy Votes"] = generate_voting_column(final_table)
 final_table.columns = ["Cell line"] + list(final_table)[1:]
 final_table.to_csv(prediction_loc, sep = SEP, index = False)

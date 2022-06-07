@@ -1,17 +1,40 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 """
-Variables for the Synpred Standalone code
+List all usable variables
 """
 
-__author__ = "A.J. Preto"
-__email__ = "martinsgomes.jose@gmail.com"
-__group__ = "Data-Driven Molecular Design"
-__group_leader__ = "Irina S. Moreira"
-__project__ = "SynPred"
 
-import os
+def temporary_files(input_run_name, now, mode = "normal"):
+
+    """
+    Website intermediate files names
+    """
+    email_adress = "membraneproteindimers@gmail.com"
+    ip_address = "83.240.200.109"
+    port_adress = "2000"
+    web_address = "http://" + ip_address + ":" + port_adress
+    if mode == "normal":
+        current_time = "_".join([str(now.year), str(now.month), str(now.day), str(now.hour), str(now.minute), str(now.second)])
+    else:
+        name = input_run_name
+        current_time = now
+    name = input_run_name
+    folder_name = UPLOAD_FOLDER + "/" + current_time
+    pdb_loc = folder_name + "/" + name
+    page_name = current_time + "_" + name +  ".html"
+    holder_page = current_time + "_holder_page_" + name +  ".html"
+    output_csv = folder_name + "/final_results_" + name + ".csv"
+    input_csv = UPLOAD_FOLDER + "/" + current_time + "/prediction_results.csv"
+    flask_csv_name = "uploads/" + current_time + "/final_results_" + name + ".csv"
+    email_message = "Your SynPred run is being processed, the results will be available at: " + web_address + "/upload/" + page_name + \
+                        ". Depending on your input files, it might take different amounts of time. Your results will be erased from our server after two weeks."
+    email_message_final = "Your SpotONE run has been completed, the results are available at: " + web_address + "/upload/" + page_name
+    web_link = web_address + "/upload/" + page_name
+    string_variables = UPLOAD_FOLDER + "/" + current_time + "/variables.txt"
+    return {"now": now, "current_time": current_time, "simple_name": name, "folder_name": folder_name,
+            "page_name": page_name, "output_csv": output_csv, "flask_csv_name": flask_csv_name,
+             "name": name, "pdb_loc": pdb_loc, "email_message": email_message,
+            "string_variables": string_variables, "holder_page": holder_page, "web_link": web_link,
+            "final_message": email_message_final}
 
 def process_cells_file(input_file, mode = "dropdown", \
                         target_column = "", input_cell_type = ""):
@@ -24,17 +47,29 @@ def process_cells_file(input_file, mode = "dropdown", \
         subset_table = opened_file.loc[opened_file[target_column] == input_cell_type][CELL_LINES_ID]
         if subset_table.empty == True:
             subset_table = opened_file.loc[opened_file["GDSC"] == input_cell_type][CELL_LINES_ID]
-        #print(subset_table, input_cell_type)
-        #print(opened_file)
         return list(subset_table)
+    if mode == "standalone":
+        output_list = []
+        for current_cell_type in input_cell_type:
+            current_result = opened_file.loc[opened_file[target_column] == current_cell_type]
+            if current_result.empty == True:
+                current_result = opened_file.loc[opened_file["GDSC"] == current_cell_type][CELL_LINES_ID]
+            if current_result.empty == False:
+                output_list += list(current_result)
+        return output_list
+
+"""
+Email configuration settings
+"""
+BOX_PORT_EMAIL = 465
+SMTP_SERVER = "smtp.gmail.com"
+SENDER_EMAIL = "membraneproteindimers@gmail.com"
+SENDER_EMAIL_PASSWORD = 'mensa_test'
 
 """
 Folder paths
 """
-HOME = ""
-if HOME == "":
-    HOME = os.getcwd()
-
+HOME = "/storage/agomes/synpred_web"
 SYSTEM_SEP = "/"
 TEMPLATES = HOME + SYSTEM_SEP + "templates"
 UPLOAD_FOLDER = HOME + SYSTEM_SEP + "uploads"
@@ -46,68 +81,73 @@ GRAPH_STATIC_FOLDER = HOME + SYSTEM_SEP + "static/img/temp_graph"
 ML_MODELS_FOLDER = HOME + SYSTEM_SEP + RESOURCES_FOLDER + SYSTEM_SEP + "ML_models"
 DL_MODELS_FOLDER = HOME + SYSTEM_SEP + RESOURCES_FOLDER + SYSTEM_SEP + "DL_models"
 
-REFERENCE_MODELS_LIST = ["Full-agreement", "Bliss", "ZIP", "HSA", "Loewe"]
+REFERENCE_MODELS_LIST = ["Full-agreement", "Bliss", "ZIP", "HSA", "Loewe","CSS"]
 MODELS_DICTIONARY = {
-    "Full-agreement": [ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_ETC_Full-agreement.pkl", \
-        ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_SVM_Full-agreement.pkl", \
+    "Full-agreement": [ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_RF_Full-agreement.pkl", \
         ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_SGD_Full-agreement.pkl", \
-        ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_RF_Full-agreement.pkl", \
-        ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_XGB_Full-agreement.pkl", \
         ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_KNN_Full-agreement.pkl", \
-        DL_MODELS_FOLDER + SYSTEM_SEP + "1_after_grid_save_full_agreement.h5", \
-        DL_MODELS_FOLDER + SYSTEM_SEP + "4_after_grid_save_full_agreement.h5", \
-        DL_MODELS_FOLDER + SYSTEM_SEP + "2_after_grid_save_full_agreement.h5", \
-        DL_MODELS_FOLDER + SYSTEM_SEP + "3_after_grid_save_full_agreement.h5", \
-        DL_MODELS_FOLDER + SYSTEM_SEP + "5_after_grid_save_full_agreement.h5"
+        ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_XGB_Full-agreement.pkl", \
+        ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_ETC_Full-agreement.pkl", \
+        ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_SVM_Full-agreement.pkl", \
+        DL_MODELS_FOLDER + SYSTEM_SEP + "DL_1_after_grid_save_full_agreement.h5", \
+        DL_MODELS_FOLDER + SYSTEM_SEP + "DL_4_after_grid_save_full_agreement.h5", \
+        DL_MODELS_FOLDER + SYSTEM_SEP + "DL_2_after_grid_save_full_agreement.h5", \
+        DL_MODELS_FOLDER + SYSTEM_SEP + "DL_3_after_grid_save_full_agreement.h5"
         ], \
-    "Bliss": [ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_RF_Bliss.pkl", \
-        ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_SVM_Bliss.pkl", \
+    "Bliss": [ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_KNN_Bliss.pkl", \
         ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_ETC_Bliss.pkl", \
-        ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_XGB_Bliss.pkl", \
-        ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_KNN_Bliss.pkl", \
+        ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_SVM_Bliss.pkl", \
         ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_SGD_Bliss.pkl", \
-        DL_MODELS_FOLDER + SYSTEM_SEP + "15_after_grid_save_Bliss.h5", \
-        DL_MODELS_FOLDER + SYSTEM_SEP + "14_after_grid_save_Bliss.h5", \
-        DL_MODELS_FOLDER + SYSTEM_SEP + "16_after_grid_save_Bliss.h5", \
-        DL_MODELS_FOLDER + SYSTEM_SEP + "17_after_grid_save_Bliss.h5"
+        ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_XGB_Bliss.pkl", \
+        ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_RF_Bliss.pkl", \
+        DL_MODELS_FOLDER + SYSTEM_SEP + "DL_12_after_grid_save_Bliss.h5", \
+        DL_MODELS_FOLDER + SYSTEM_SEP + "DL_11_after_grid_save_Bliss.h5", \
+        DL_MODELS_FOLDER + SYSTEM_SEP + "DL_13_after_grid_save_Bliss.h5", \
+        DL_MODELS_FOLDER + SYSTEM_SEP + "DL_9_after_grid_save_Bliss.h5", \
+        DL_MODELS_FOLDER + SYSTEM_SEP + "DL_10_after_grid_save_Bliss.h5"
         ], \
     "Loewe": [ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_SVM_Loewe.pkl", \
-        ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_RF_Loewe.pkl", \
-        ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_XGB_Loewe.pkl", \
         ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_SGD_Loewe.pkl", \
-        ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_KNN_Loewe.pkl", \
+        ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_XGB_Loewe.pkl", \
         ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_ETC_Loewe.pkl", \
-        DL_MODELS_FOLDER + SYSTEM_SEP + "8_after_grid_save_Loewe.h5", \
-        DL_MODELS_FOLDER + SYSTEM_SEP + "10_after_grid_save_Loewe.h5", \
-        DL_MODELS_FOLDER + SYSTEM_SEP + "6_after_grid_save_Loewe.h5", \
-        DL_MODELS_FOLDER + SYSTEM_SEP + "12_after_grid_save_Loewe.h5", \
-        DL_MODELS_FOLDER + SYSTEM_SEP + "11_after_grid_save_Loewe.h5", \
-        DL_MODELS_FOLDER + SYSTEM_SEP + "9_after_grid_save_Loewe.h5", \
-        DL_MODELS_FOLDER + SYSTEM_SEP + "7_after_grid_save_Loewe.h5", \
-        DL_MODELS_FOLDER + SYSTEM_SEP + "13_after_grid_save_Loewe.h5"
+        ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_KNN_Loewe.pkl", \
+        ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_RF_Loewe.pkl", \
+        DL_MODELS_FOLDER + SYSTEM_SEP + "DL_8_after_grid_save_Loewe.h5", \
+        DL_MODELS_FOLDER + SYSTEM_SEP + "DL_5_after_grid_save_Loewe.h5", \
+        DL_MODELS_FOLDER + SYSTEM_SEP + "DL_6_after_grid_save_Loewe.h5", \
+        DL_MODELS_FOLDER + SYSTEM_SEP + "DL_7_after_grid_save_Loewe.h5"
         ], \
-    "ZIP": [ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_SGD_ZIP.pkl", \
+    "ZIP": [ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_RF_ZIP.pkl", \
         ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_KNN_ZIP.pkl", \
-        ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_SVM_ZIP.pkl", \
-        ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_RF_ZIP.pkl", \
-        ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_ETC_ZIP.pkl", \
         ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_XGB_ZIP.pkl", \
-        DL_MODELS_FOLDER + SYSTEM_SEP + "22_after_grid_save_ZIP.h5", \
-        DL_MODELS_FOLDER + SYSTEM_SEP + "24_after_grid_save_ZIP.h5", \
-        DL_MODELS_FOLDER + SYSTEM_SEP + "25_after_grid_save_ZIP.h5", \
-        DL_MODELS_FOLDER + SYSTEM_SEP + "26_after_grid_save_ZIP.h5", \
-        DL_MODELS_FOLDER + SYSTEM_SEP + "23_after_grid_save_ZIP.h5"
+        ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_SGD_ZIP.pkl", \
+        ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_ETC_ZIP.pkl", \
+        ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_SVM_ZIP.pkl", \
+        DL_MODELS_FOLDER + SYSTEM_SEP + "DL_20_after_grid_save_ZIP.h5", \
+        DL_MODELS_FOLDER + SYSTEM_SEP + "DL_18_after_grid_save_ZIP.h5", \
+        DL_MODELS_FOLDER + SYSTEM_SEP + "DL_19_after_grid_save_ZIP.h5"
         ], \
-    "HSA": [ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_ETC_HSA.pkl", \
+    "HSA": [ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_XGB_HSA.pkl", \
+        ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_SGD_HSA.pkl", \
+        ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_KNN_HSA.pkl", \
+        ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_ETC_HSA.pkl", \
         ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_RF_HSA.pkl", \
         ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_SVM_HSA.pkl", \
-        ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_XGB_HSA.pkl", \
-        ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_KNN_HSA.pkl", \
-        ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_SGD_HSA.pkl", \
-        DL_MODELS_FOLDER + SYSTEM_SEP + "19_after_grid_save_HSA.h5", \
-        DL_MODELS_FOLDER + SYSTEM_SEP + "18_after_grid_save_HSA.h5", \
-        DL_MODELS_FOLDER + SYSTEM_SEP + "20_after_grid_save_HSA.h5", \
-        DL_MODELS_FOLDER + SYSTEM_SEP + "21_after_grid_save_HSA.h5"
+        DL_MODELS_FOLDER + SYSTEM_SEP + "DL_16_after_grid_save_HSA.h5", \
+        DL_MODELS_FOLDER + SYSTEM_SEP + "DL_14_after_grid_save_HSA.h5", \
+        DL_MODELS_FOLDER + SYSTEM_SEP + "DL_17_after_grid_save_HSA.h5", \
+        DL_MODELS_FOLDER + SYSTEM_SEP + "DL_15_after_grid_save_HSA.h5"
+        ], \
+    "CSS": [ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_RF_CSS-RI.pkl", \
+        ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_KNN_CSS-RI.pkl", \
+        ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_SVM_CSS-RI.pkl", \
+        ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_ETC_CSS-RI.pkl", \
+        ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_SGD_CSS-RI.pkl", \
+        ML_MODELS_FOLDER + SYSTEM_SEP + "PCA_fillna_XGB_CSS-RI.pkl", \
+        DL_MODELS_FOLDER + SYSTEM_SEP + "DL_23_after_grid_save_CSS-RI.h5", \
+        DL_MODELS_FOLDER + SYSTEM_SEP + "DL_24_after_grid_save_CSS-RI.h5", \
+        DL_MODELS_FOLDER + SYSTEM_SEP + "DL_22_after_grid_save_CSS-RI.h5", \
+        DL_MODELS_FOLDER + SYSTEM_SEP + "DL_21_after_grid_save_CSS-RI.h5"
         ]
 }
 
@@ -115,7 +155,8 @@ ENSEMBLE_MODELS_DICTIONARY = {"Full-agreement": DL_MODELS_FOLDER + SYSTEM_SEP + 
         "HSA": DL_MODELS_FOLDER + SYSTEM_SEP + "HSA_final_ensemble.h5", \
         "ZIP": DL_MODELS_FOLDER + SYSTEM_SEP + "ZIP_final_ensemble.h5", \
         "Loewe": DL_MODELS_FOLDER + SYSTEM_SEP + "Loewe_final_ensemble.h5", \
-        "Bliss": DL_MODELS_FOLDER + SYSTEM_SEP + "Bliss_final_ensemble.h5"}
+        "Bliss": DL_MODELS_FOLDER + SYSTEM_SEP + "Bliss_final_ensemble.h5", \
+        "CSS": DL_MODELS_FOLDER + SYSTEM_SEP + "CSS_final_ensemble.h5"}
 """
 HSA:
 1-ETC

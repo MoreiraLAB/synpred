@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
+Edit the two datasets,  with or without the concentrations.
 Extract 3 independent datasets depending on cell lines, drug combinations and single drugs, these samples will not appear in either the train or the test subsets.
 Write train and test files
 """
@@ -19,7 +20,7 @@ import sys
 from synpred_variables import SYSTEM_SEP, CSV_SEP, PARAGRAPH_SEP, \
 							TAB_SEP, INTERMEDIATE_SEP, RANDOM_STATE, \
 							SUPPORT_FOLDER, CSV_TERMINATION, REDEPLOYMENT_FOLDER, \
-							DATASETS_DICTIONARY
+							DATASETS_DICTIONARY, COMBODB_COLUMN_CLASS
 import pickle
 import random
 import numpy as np
@@ -38,18 +39,23 @@ def write_split_record(input_list, output_file, split_section = ""):
 
 def exclude_by_column_value(input_table, target_column, exclude_list, \
 								write_mode = False, output_name = "", \
-								write_type = "w"):
+								write_type = "w", mode = ""):
 
 	"""
 	Cut a table according to the values in exclude list and the target column,
 	write the table with the subset (if active) and return the subset table
 	"""
 	shorter_table = input_table[~input_table[target_column].isin(exclude_list)]
+	
+	if mode == "combodb":
+		usable_cols = list(set(list(RENAME_DICTIONARY)))
 
 	if write_mode == False:
 		return shorter_table
 	elif write_mode == True:
-		exclude_table = input_table[input_table[target_column].isin(exclude_list)].drop(["drug_combinations"], axis = 1)
+		exclude_table = input_table[input_table[target_column].isin(exclude_list)]
+		if mode == "combodb":
+			exclude_table = exclude_table[usable_cols].rename(columns = RENAME_DICTIONARY)
 		if write_type == "w":
 			header_mode = True
 		elif write_type == "a":
@@ -71,22 +77,32 @@ def retrieve_split_record(input_file, split_section = ""):
 
 class split_file:
 
-	def __init__(self, mode = "train", input_dataset = "", combination_mode = "only_combinations"):
+	def __init__(self, mode = "train", input_dataset = "", combination_mode = "only_combinations", sep = CSV_SEP, \
+						drug1 = "Drug1", drug2 = "Drug2", cell = "cell", dataset_mode = ""):
 
 		"""
 		The combination mode and the input dataset define whether or not concentrations are taken into account
 		"""
+		self.dataset_mode = dataset_mode
+		self.drug1 = drug1
+		self.drug2 = drug2
+		self.cell = cell
 		self.combination_mode = combination_mode
 		self.raw_data_file = input_dataset
-		self.opened_raw_data = pd.read_csv(self.raw_data_file, sep = CSV_SEP, header = 0)
-		self.opened_raw_data[["Drug1","Drug2"]] = self.opened_raw_data[["Drug1","Drug2"]].astype(int).astype(str)
+		self.opened_raw_data = pd.read_csv(self.raw_data_file, sep = sep, header = 0)
+		try:
+			self.opened_raw_data[[self.drug1, self.drug2]] = self.opened_raw_data[[self.drug1, self.drug2]].astype(int).astype(str)
+		except:
+			self.opened_raw_data[[self.drug1, self.drug2]] = self.opened_raw_data[[self.drug1, self.drug2]].astype(str)
+		if self.combination_mode == "with_concentrations":
+			self.opened_raw_data = self.opened_raw_data.drop(["response"], axis = 1)
 
 	def split_by_cell(self, number_of_cell_lines = 3, write_output = False):
 
 		"""
 		Split the dataset by the number of cell lines
 		"""
-		self.unique_cells = list(self.opened_raw_data["cell"].unique())
+		self.unique_cells = list(self.opened_raw_data[self.cell].unique())
 		random.shuffle(self.unique_cells)
 		self.unique_cells_test = self.unique_cells[0:number_of_cell_lines]
 		self.unique_cells_train = self.unique_cells[number_of_cell_lines:]
@@ -99,7 +115,10 @@ class split_file:
 		"""
 		Split the dataset by the number drug combinations
 		"""
-		self.combined_column = list(self.opened_raw_data["Drug1"].astype(int).astype(str) + "&" + self.opened_raw_data["Drug2"].astype(int).astype(str))
+		try:
+			self.combined_column = list(self.opened_raw_data[self.drug1].astype(int).astype(str) + "&" + self.opened_raw_data[self.drug2].astype(int).astype(str))
+		except:
+			self.combined_column = list(self.opened_raw_data[self.drug1].astype(str) + "&" + self.opened_raw_data[self.drug2].astype(str))
 		random.shuffle(self.combined_column)
 		self.unique_drug_combo_test = self.combined_column[0:number_of_drug_combinations]
 		self.unique_drug_combo_train = self.combined_column[number_of_drug_combinations:]
@@ -112,7 +131,10 @@ class split_file:
 		"""
 		Split the dataset by the number drugs
 		"""
-		self.unique_drugs = list(self.opened_raw_data["Drug1"].astype(int).astype(str)) + list(self.opened_raw_data["Drug2"].astype(int).astype(str))
+		try:
+			self.unique_drugs = list(self.opened_raw_data[self.drug1].astype(int).astype(str)) + list(self.opened_raw_data[self.drug2].astype(int).astype(str))
+		except:
+			self.unique_drugs = list(self.opened_raw_data[self.drug1].astype(str)) + list(self.opened_raw_data[self.drug2].astype(str))
 		random.shuffle(self.unique_drugs)
 		self.unique_drugs_test = self.unique_drugs[0:number_of_drugs]
 		self.unique_drugs_train = self.unique_drugs[number_of_drugs:]
@@ -129,28 +151,38 @@ class split_file:
 		"""
 		Remove the rows containing either the excluded cells, drug combinations or drugs
 		"""
-		self.opened_raw_data["drug_combinations"] = self.opened_raw_data["Drug1"].astype(int).astype(str) + "&" + self.opened_raw_data["Drug2"].astype(int).astype(str)
+		try:
+			self.opened_raw_data["drug_combinations"] = self.opened_raw_data[self.drug1].astype(int).astype(str) + "&" + self.opened_raw_data[self.drug2].astype(int).astype(str)
+		except:
+			self.opened_raw_data["drug_combinations"] = self.opened_raw_data[self.drug1].astype(str) + "&" + self.opened_raw_data[self.drug2].astype(str)
 		exclude_cells = retrieve_split_record("cell_lines", split_section = "test")
 		exclude_drug_combinations = retrieve_split_record("drug_combinations", split_section = "test")
 		exclude_drugs = retrieve_split_record("drugs", split_section = "test")
 
-		table_less_cells = exclude_by_column_value(self.opened_raw_data, "cell", exclude_cells, write_mode = True, \
-											output_name = cell_file)
+		table_less_cells = exclude_by_column_value(self.opened_raw_data, self.cell, exclude_cells, write_mode = True, \
+											output_name = cell_file, mode = self.dataset_mode)
 		table_less_drug_combinations = exclude_by_column_value(table_less_cells, "drug_combinations", \
 											exclude_drug_combinations, write_mode = True, \
-											output_name = drug_combinations_file)
-		table_less_drugs1 = exclude_by_column_value(table_less_drug_combinations, "Drug1", \
+											output_name = drug_combinations_file, mode = self.dataset_mode)
+		table_less_drugs1 = exclude_by_column_value(table_less_drug_combinations, self.drug1, \
 											exclude_drugs, write_mode = True, \
-											output_name = drugs_file)
-		table_less_drugs2 = exclude_by_column_value(table_less_drugs1, "Drug2", \
+											output_name = drugs_file, mode = self.dataset_mode)
+		table_less_drugs2 = exclude_by_column_value(table_less_drugs1, self.drug2, \
 											exclude_drugs, write_mode = True, \
-											output_name = drugs_file, write_type = "a")
-		table_less_drugs2[["Drug1","Drug2"]] = table_less_drugs2[["Drug1","Drug2"]].astype(int).astype(str)
+											output_name = drugs_file, write_type = "a", mode = self.dataset_mode)
+		try:
+			table_less_drugs2[[self.drug1, self.drug2]] = table_less_drugs2[[self.drug1, self.drug2]].astype(int).astype(str)
+		except:
+			table_less_drugs2[[self.drug1, self.drug2]] = table_less_drugs2[[self.drug1, self.drug2]].astype(str)
 		table_less = table_less_drugs2.drop(["drug_combinations"], axis = 1)
 
 		from sklearn.model_selection import train_test_split
 
 		train_table, test_table = train_test_split(table_less, test_size = split_test_size)
+		if self.dataset_mode == "combodb":
+			usable_cols = list(set(list(RENAME_DICTIONARY)))
+			train_table = train_table[usable_cols].rename(RENAME_DICTIONARY, axis = 1)
+			test_table = test_table[usable_cols].rename(RENAME_DICTIONARY, axis = 1)
 		train_table.to_csv(train_output_file, sep = CSV_SEP, index = False)
 		test_table.to_csv(test_output_file, sep = CSV_SEP, index = False)
 
@@ -183,11 +215,11 @@ class split_file:
 				(input_data[class_columns[2]] <= 0) and  (input_data[class_columns[3]] <= 0):
 				return 1
 			else:
-				return 0
-
+				return 0 
 		self.opened_raw_data["full_agreement_val"] = self.opened_raw_data.apply(check_agreement, axis = 1)
 		self.opened_raw_data["full_agreement"] = self.opened_raw_data.apply(deploy_threshold, axis = 1)
 
+"""
 split_object = split_file(combination_mode = "only_combinations", \
 							input_dataset = DATASETS_DICTIONARY["NCI_ALMANAC_classes"])
 split_object.generate_full_agreement()
@@ -200,3 +232,33 @@ split_object.generate_train_dataset(split_test_size = 0.2, \
 							cell_file = DATASETS_DICTIONARY["independent_cell"], \
 							drugs_file = DATASETS_DICTIONARY["independent_drugs"], \
 							drug_combinations_file = DATASETS_DICTIONARY["independent_drug_combinations"])
+"""
+
+
+"""
+split_object_concentrations = split_file(combination_mode = "with_concentrations", input_dataset = DATASETS_DICTIONARY["NCI_ALMANAC_with_combinations"])
+split_object_concentrations.generate_full_agreement()
+split_object_concentrations.generate_train_dataset(split_test_size = 0.2, \
+							train_output_file = DATASETS_DICTIONARY["train_concentration_dataset"], \
+							test_output_file = DATASETS_DICTIONARY["test_concentration_dataset"], \
+							cell_file = DATASETS_DICTIONARY["independent_cell_concentration"],\
+							drugs_file = DATASETS_DICTIONARY["independent_drugs_concentration"],\
+							drug_combinations_file = DATASETS_DICTIONARY["independent_drug_combinations_concentration"])
+"""
+RENAME_DICTIONARY = {"block_id": "block_id", "cell_line_name": "cell",
+							"synergy_zip": "ZIP", "synergy_loewe": "Loewe", "synergy_hsa": "HSA", "synergy_bliss": "Bliss", \
+							"full_agreement": "full_agreement", "full_agreement_val": "full_agreement_val", "drug_1_name": "Drug1", "drug_2_name": "Drug2", \
+							"css_ri": "CSS-RI"}
+split_object = split_file(combination_mode = "only_combinations", \
+							input_dataset = DATASETS_DICTIONARY["combodb"], sep = ";", \
+							drug1 = "drug_1_name", drug2 = "drug_2_name", cell = "cell_line_name", \
+							dataset_mode = "combodb")
+split_object.split_by_cell(write_output = True)
+split_object.split_by_drug_combo(write_output = True)
+split_object.split_by_drug(write_output = True)
+split_object.generate_train_dataset(split_test_size = 0.2, \
+							train_output_file = DATASETS_DICTIONARY["combodb_train_dataset"], \
+							test_output_file = DATASETS_DICTIONARY["combodb_test_dataset"], \
+							cell_file = DATASETS_DICTIONARY["combodb_independent_cell"], \
+							drugs_file = DATASETS_DICTIONARY["combodb_independent_drugs"], \
+							drug_combinations_file = DATASETS_DICTIONARY["combodb_independent_drug_combinations"])

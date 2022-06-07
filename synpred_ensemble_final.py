@@ -33,8 +33,8 @@ import sklearn
 from synpred_variables import REDEPLOYMENT_FOLDER, SYSTEM_SEP, \
                             CSV_SEP, INTERMEDIATE_SEP, \
                             DL_SAVED_MODELS, RANDOM_STATE, \
-                            PKL_TERMINATION, DATASETS_DICTIONARY_NO_CONCENTRATION, \
-                            SUPPORT_FOLDER, POSSIBLE_TARGETS, DL_ENSEMBLE_PARAMETERS, \
+                            PKL_TERMINATION, DATASETS_DICTIONARY_DRUGCOMB, \
+                            SUPPORT_FOLDER, POSSIBLE_TARGETS_DRUGCOMB, DL_ENSEMBLE_PARAMETERS, \
                             EVALUATION_DL_FOLDER, PARAGRAPH_SEP, DATASETS_DICTIONARY
 from synpred_support_functions import model_evaluation, prepare_dataset
 import h5py
@@ -101,8 +101,8 @@ def locate_models(input_folder, folder_condition = "ML", secondary_condition = "
         if folder_condition == "ML":
             if files.endswith(PKL_TERMINATION):
                 split_file = files.split(INTERMEDIATE_SEP)
-                if (split_file[0] == secondary_condition) and (split_file[-1].split(".")[0] == target):
-                    model_name =  folder_condition + INTERMEDIATE_SEP + INTERMEDIATE_SEP.join(split_file[0:-1])
+                if (split_file[0] == secondary_condition) and (files.endswith(target + "drugcomb_.pkl")):
+                    model_name =  folder_condition + INTERMEDIATE_SEP + INTERMEDIATE_SEP.join(split_file[0:-2]) + INTERMEDIATE_SEP + target
                     files_loc = input_folder + SYSTEM_SEP + files
                     if split_file[1] == third_condition:
                         pickle_file = open(files_loc, 'rb')
@@ -119,6 +119,7 @@ def locate_models(input_folder, folder_condition = "ML", secondary_condition = "
                 model = load_model(os.path.join("./saved_model/",files))
                 models_dictionary[folder_condition + INTERMEDIATE_SEP + files.split(".")[0]] = model
     return models_dictionary
+
 
 class ensemble:
 
@@ -138,23 +139,27 @@ class ensemble:
         self.all_models_dict = dict(self.models_dict_ML, **self.models_dict_DL)
         self.preprocess = third_cond
         if third_cond == "drop":
-            self.datasets_dictionary = {"PCA_drop": DATASETS_DICTIONARY_NO_CONCENTRATION["PCA_dropna"]}
+            self.datasets_dictionary = {"PCA_drop": DATASETS_DICTIONARY_DRUGCOMB["PCA_dropna"]}
             self.processing_type = "PCA_drop"
         elif third_cond == "non_drop":
-            self.datasets_dictionary = {"PCA": DATASETS_DICTIONARY_NO_CONCENTRATION["PCA_fillna"]}
+            self.datasets_dictionary = {"PCA": DATASETS_DICTIONARY_DRUGCOMB["PCA_fillna"]}
             self.processing_type = "PCA"
         self.data_dictionary = prepare_dataset(self.datasets_dictionary[self.processing_type][0], self.datasets_dictionary[self.processing_type][1], \
                                                     sample_mode = False, target_column = current_target, task_type = self.problem_type, \
-                                                    final_mode = True, final_reduction = "PCA", final_preprocessing = "fillna")
+                                                    final_mode = True, final_reduction = "combodb_PCA", final_preprocessing = "fillna")
         self.classes_dictionary = {"train_class": self.data_dictionary["train_class"], \
                                     "test_class": self.data_dictionary["test_class"], \
                                     "cell_class": self.data_dictionary["cell_class"], \
                                     "drugs_class": self.data_dictionary["drugs_class"], \
                                     "combo_class": self.data_dictionary["combo_class"]}
         self.predictions_classes_path = SUPPORT_FOLDER + SYSTEM_SEP + self.mode + \
-                        INTERMEDIATE_SEP + current_target + INTERMEDIATE_SEP + "predictions_dictionary_classes.pkl"
+                        INTERMEDIATE_SEP + current_target + INTERMEDIATE_SEP + "predictions_dictionary_classes_full.pkl"
+        #self.predictions_classes_path_full = SUPPORT_FOLDER + SYSTEM_SEP + self.mode + \
+        #                INTERMEDIATE_SEP + current_target + INTERMEDIATE_SEP + "predictions_dictionary_classes_full.pkl"
         self.predictions_probs_path = SUPPORT_FOLDER + SYSTEM_SEP + self.mode + \
-                        INTERMEDIATE_SEP + current_target + INTERMEDIATE_SEP + "predictions_dictionary_probs.pkl"
+                        INTERMEDIATE_SEP + current_target + INTERMEDIATE_SEP + "predictions_dictionary_probs_full.pkl"
+        #self.predictions_probs_path_full = SUPPORT_FOLDER + SYSTEM_SEP + self.mode + \
+        #                INTERMEDIATE_SEP + current_target + INTERMEDIATE_SEP + "predictions_dictionary_probs_full.pkl"
 
         self.class_pickle_path = SUPPORT_FOLDER + SYSTEM_SEP + self.mode + \
                         INTERMEDIATE_SEP + current_target + INTERMEDIATE_SEP + "classes_dictionary.pkl"
@@ -177,6 +182,10 @@ class ensemble:
 
         if prediction_mode == "classes":
             self.predictions_dictionary_classes = {}
+            if os.path.exists(self.predictions_classes_path):
+                with open(self.predictions_classes_path, 'rb') as handle:
+                    self.predictions_dictionary_classes = pickle.load(handle)
+
             for current_method in self.all_models_dict.keys():
                 classifier = self.all_models_dict[current_method]
                 mode = current_method.split(INTERMEDIATE_SEP)[0]
@@ -184,11 +193,11 @@ class ensemble:
                     predict_function = classifier.predict_classes
                 elif mode == "ML":
                     predict_function = classifier.predict
-
-                self.predictions_dictionary_classes[current_method + INTERMEDIATE_SEP + "train_class"] = \
-                        predict_function(self.data_dictionary["train_features"])
-                self.predictions_dictionary_classes[current_method + INTERMEDIATE_SEP + "test_class"] = \
-                        predict_function(self.data_dictionary["test_features"])
+                print("Writing classes", current_method)
+                #self.predictions_dictionary_classes[current_method + INTERMEDIATE_SEP + "train_class"] = \
+                #        predict_function(self.data_dictionary["train_features"])
+                #self.predictions_dictionary_classes[current_method + INTERMEDIATE_SEP + "test_class"] = \
+                #        predict_function(self.data_dictionary["test_features"])
                 self.predictions_dictionary_classes[current_method + INTERMEDIATE_SEP + "cell_class"] = \
                         predict_function(self.data_dictionary["cell_features"])
                 self.predictions_dictionary_classes[current_method + INTERMEDIATE_SEP + "drugs_class"] = \
@@ -197,12 +206,17 @@ class ensemble:
                         predict_function(self.data_dictionary["combo_features"])
 
             if write == True:
-                with open(self.predictions_classes_path, 'wb') as pred_pkl_classes:
+                with open(self.predictions_classes_path_full, 'wb') as pred_pkl_classes:
                     pickle.dump(self.predictions_dictionary_classes, pred_pkl_classes, protocol=pickle.HIGHEST_PROTOCOL)
 
         if prediction_mode == "probabilities":
             self.predictions_dictionary_probs = {}
+            if os.path.exists(self.predictions_probs_path):
+                with open(self.predictions_probs_path, 'rb') as handle:
+                    self.predictions_dictionary_probs = pickle.load(handle)
+
             for current_method in self.all_models_dict.keys():
+                print("Writing probabilities", current_method)
                 classifier = self.all_models_dict[current_method]
                 mode = current_method.split(INTERMEDIATE_SEP)[0]
                 if mode == "DL":
@@ -214,10 +228,10 @@ class ensemble:
                         predict_function = classifier.predict
                 elif (mode == "ML") and (self.problem_type == "regression"):
                     predict_function = classifier.predict
-                self.predictions_dictionary_probs[current_method + INTERMEDIATE_SEP + "train_class"] = \
-                        predict_function(self.data_dictionary["train_features"])
-                self.predictions_dictionary_probs[current_method + INTERMEDIATE_SEP + "test_class"] = \
-                        predict_function(self.data_dictionary["test_features"])
+                #self.predictions_dictionary_probs[current_method + INTERMEDIATE_SEP + "train_class"] = \
+                #        predict_function(self.data_dictionary["train_features"])
+                #self.predictions_dictionary_probs[current_method + INTERMEDIATE_SEP + "test_class"] = \
+                #        predict_function(self.data_dictionary["test_features"])
                 self.predictions_dictionary_probs[current_method + INTERMEDIATE_SEP + "cell_class"] = \
                         predict_function(self.data_dictionary["cell_features"])
                 self.predictions_dictionary_probs[current_method + INTERMEDIATE_SEP + "drugs_class"] = \
@@ -226,7 +240,7 @@ class ensemble:
                         predict_function(self.data_dictionary["combo_features"])
 
             if write == True:
-                with open(self.predictions_probs_path, 'wb') as pred_pkl_proba:
+                with open(self.predictions_probs_path_full, 'wb') as pred_pkl_proba:
                     pickle.dump(self.predictions_dictionary_probs, pred_pkl_proba, protocol=pickle.HIGHEST_PROTOCOL)
 
     def join_methods_predictions(self, subset = "train", mode = "probabilities"):
@@ -291,12 +305,12 @@ class ensemble:
                                 self.train_predictions_table.shape[1], dropout_rate = current_dropout_rate, \
                                 prediction_mode = self.problem_type)
                 count +=1
-                optimizer = tf.keras.optimizers.Adam(0.0001)
+                optimizer = tf.keras.optimizers.Adam(0.001)
                 if self.problem_type == "classification":
                     nn_model.model.compile(loss = 'binary_crossentropy', optimizer = optimizer, metrics = ['accuracy'])
                     nn_model.model.fit(x = self.train_predictions_table, \
                                 y = self.classes_dictionary["train_class"], \
-                                epochs = 5, validation_split = 0.10)
+                                epochs = 100, validation_split = 0.10)
                     train_predictions = [int(np.round(x)) for x in nn_model.model.predict(self.train_predictions_table)]
                     test_predictions = [int(np.round(x)) for x in nn_model.model.predict(self.test_predictions_table)]
                     cell_predictions = [int(np.round(x)) for x in nn_model.model.predict(self.cell_predictions_table)]
@@ -306,7 +320,7 @@ class ensemble:
                     nn_model.model.compile(loss = 'mse', optimizer = optimizer, metrics = ['mse','mae'])
                     nn_model.model.fit(x = self.train_predictions_table, \
                                 y = self.classes_dictionary["train_class"], \
-                                epochs = 5, validation_split = 0.10)
+                                epochs = 100, validation_split = 0.10)
                     train_predictions = [np.round(x) for x in nn_model.model.predict(self.train_predictions_table)]
                     test_predictions = [np.round(x) for x in nn_model.model.predict(self.test_predictions_table)]
                     cell_predictions = [np.round(x) for x in nn_model.model.predict(self.cell_predictions_table)]
@@ -439,16 +453,19 @@ def process_ensemble_parameters(target_list = [], results_folder = EVALUATION_DL
                     str(test_dictionary[write_metric_test][2]) + CSV_SEP + str(test_dictionary[write_metric_test][3]) + \
                     CSV_SEP + preprocessing_mode + PARAGRAPH_SEP
                 write_file.write(to_write_test)
+
+parameters_dictionary = process_ensemble_parameters(target_list = POSSIBLE_TARGETS_DRUGCOMB)
+
+final_parameters_dictionary = {"Loewe": {"architecture": [250]*7, "dropout": 0.0}, \
+                                "Bliss": {"architecture": [500]*3, "dropout": 0.0}, \
+                                "ZIP": {"architecture": [500]*3, "dropout": 0.3}, \
+                                "HSA": {"architecture": [10]*5, "dropout": 0.0},\
+                                "CSS-RI": {"architecture": [50]*7, "dropout": 0.0},\
+                                "full_agreement": {"architecture": [100]*3, "dropout": 0.6}}
+
 """
-parameters_dictionary = process_ensemble_parameters(target_list = POSSIBLE_TARGETS)
-"""
-final_parameters_dictionary = {"Loewe": {"architecture": [500]*7, "dropout": 0.1}, \
-                                "Bliss": {"architecture": [100]*5, "dropout": 0.0}, \
-                                "ZIP": {"architecture": [500]*5, "dropout": 0.0}, \
-                                "HSA": {"architecture": [500]*7, "dropout": 0.0},\
-                                "full_agreement": {"architecture": [10]*3, "dropout": 0.4}}
-"""
-for target in POSSIBLE_TARGETS:
+for target in POSSIBLE_TARGETS_DRUGCOMB:
+    print("Current target:", target)
     if target == "full_agreement":
         prob_type = "classification"
     else:
@@ -456,11 +473,13 @@ for target in POSSIBLE_TARGETS:
     regular_object = ensemble(REDEPLOYMENT_FOLDER, DL_SAVED_MODELS, "non_drop", \
                                     problem_type = prob_type, write_class_pickle = False, \
                                     input_parameters = final_parameters_dictionary[target], current_target = target)
+    print("Writing probabilities")
     regular_object.target_generator(prediction_mode = "probabilities")
+    print("Writing classes")
     regular_object.target_generator(prediction_mode = "classes")
 """
 
-for target in POSSIBLE_TARGETS:
+for target in POSSIBLE_TARGETS_DRUGCOMB:
     if target == "full_agreement":
         prob_type = "classification"
     else:

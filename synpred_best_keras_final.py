@@ -17,7 +17,8 @@ import itertools
 from synpred_variables import SYSTEM_SEP, CSV_SEP, \
 						INTERMEDIATE_SEP, PARAGRAPH_SEP, \
 						SUPPORT_FOLDER, CSV_TERMINATION, \
-						DL_GRIDSEARCH_PARAMETERS, BEST_PARAMETERS_INDEX_FILE
+						DL_GRIDSEARCH_PARAMETERS, BEST_PARAMETERS_INDEX_FILE, \
+						DL_COMBODB_GRIDSEARCH_PARAMETERS, DL_SAVED_MODELS
 
 def iterate_dictionary(input_meta_dictionary, target_script = "synpred_keras_final.py", \
 						verbose = True):
@@ -35,7 +36,11 @@ def iterate_dictionary(input_meta_dictionary, target_script = "synpred_keras_fin
 				for x in parameters:
 					start_command +=  '"' + str(x) + '" '
 				start_command += str(model_id) + "_after_grid_save"
-				os.system(start_command)
+				file_name = DL_SAVED_MODELS + SYSTEM_SEP + str(model_id) + "_after_grid_save_" + target + ".h5"
+				if os.path.exists(file_name):
+					print(file_name, "exists")
+				else:
+					os.system(start_command)
 				writeable_row = str(target) + CSV_SEP + str(model_id) + CSV_SEP + CSV_SEP.join([str(x) for x in parameters]) + PARAGRAPH_SEP
 				output_file.write(writeable_row)
 				if verbose == True:
@@ -62,5 +67,5 @@ def locate_best_parameters(input_file = DL_GRIDSEARCH_PARAMETERS, target_col = "
 											"target": [current_target]}
 	return output_dictionary
 
-parameters_after_gridsearch = locate_best_parameters()
+parameters_after_gridsearch = locate_best_parameters(input_file = DL_COMBODB_GRIDSEARCH_PARAMETERS, usable_dataset = "combodb_PCA_fillna")
 iterate_dictionary(parameters_after_gridsearch)

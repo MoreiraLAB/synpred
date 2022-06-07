@@ -24,7 +24,8 @@ from synpred_variables import DEFAULT_LOCATION, CCLE_FOLDER, \
                             CCLE_COLUMN_TAG, AUTOENCODER_CCLE, \
                             AUTOENCODER_LOG_FILE, RANDOM_STATE, \
                             MORDRED_RAW_FILE, SCALER_MORDRED_FILE, \
-                            MORDRED_PROCESSED_FILE
+                            MORDRED_PROCESSED_FILE, MORDRED_PROCESSED_COMBODB_FILE, \
+                            MORDRED_RAW_COMBODB_FILE
 
 from synpred_support_functions import open_log_file, alternative_ID_file
 import os
@@ -282,12 +283,12 @@ class process_CCLE:
 def normalize_drugs(input_table_file = MORDRED_RAW_FILE, train_drugs_file = SUPPORT_FOLDER + SYSTEM_SEP + "train_drugs.csv", \
                         test_drugs_file = SUPPORT_FOLDER + SYSTEM_SEP + "test_drugs.csv", \
                         mordred_drug_ID_col = "NCI", \
-                        output_file = MORDRED_PROCESSED_FILE, pickle_file = SCALER_MORDRED_FILE):
+                        output_file = MORDRED_PROCESSED_FILE, pickle_file = SCALER_MORDRED_FILE, sep = CSV_SEP):
     
     from sklearn.preprocessing import StandardScaler
     import pickle
-    train_drugs = list(pd.read_csv(train_drugs_file, sep = CSV_SEP, header = None).iloc[:,0])
-    test_drugs = list(pd.read_csv(test_drugs_file, sep = CSV_SEP, header = None).iloc[:,0])
+    train_drugs = list(pd.read_csv(train_drugs_file, sep = sep, header = None).iloc[:,0])
+    test_drugs = list(pd.read_csv(test_drugs_file, sep = sep, header = None).iloc[:,0])
     opened_table = pd.read_csv(input_table_file, sep = CSV_SEP, header = 0)
     train_data = opened_table.loc[opened_table[mordred_drug_ID_col].isin(train_drugs)]
     scaler = StandardScaler()
@@ -355,8 +356,79 @@ CCLE_processed.normalize_features()
 CCLE_processed.reduce_CCLE(reduce_mode = "PCA", number_of_dimensions = 25)
 CCLE_processed.reduce_CCLE(reduce_mode = "autoencoder")
 
-normalize_drugs()
+normalize_drugs(input_table_file = MORDRED_RAW_COMBODB_FILE, train_drugs_file = SUPPORT_FOLDER + SYSTEM_SEP + "train_drugs.csv", \
+                        test_drugs_file = SUPPORT_FOLDER + SYSTEM_SEP + "test_drugs.csv", \
+                        mordred_drug_ID_col = "SMILE", \
+                        output_file = MORDRED_PROCESSED_COMBODB_FILE, pickle_file = SCALER_MORDRED_FILE, sep = ";")
 
+merge_object_1 = merge_dataset(mordred_file = MORDRED_PROCESSED_COMBODB_FILE, mordred_drug_ID_col = "SMILE")
+merge_object_1.open_datasets({"train": DATASETS_DICTIONARY["combodb_train_dataset"], \
+                                    "test": DATASETS_DICTIONARY["combodb_test_dataset"], \
+                                    "cell": DATASETS_DICTIONARY["combodb_independent_cell"], \
+                                    "drugs": DATASETS_DICTIONARY["combodb_independent_drugs"], \
+                                    "drug_combinations": DATASETS_DICTIONARY["combodb_independent_drug_combinations"]}, \
+                                    id_class_columns = ["ZIP", "Loewe", "HSA", "Bliss", "CSS-RI",\
+                                        "full_agreement", "block_id", "Drug1", "Drug2", "cell","full_agreement_val"])
+merge_object_1.merge_drugs()
+merge_object_1.merge_CCLE(reduce_mode = "PCA", NA_handling = "fill", \
+                            output_names_dictionary = {"train": DATASETS_DICTIONARY["combodb_PCA_train_dataset_fillna"], \
+                                                        "test": DATASETS_DICTIONARY["combodb_PCA_test_dataset_fillna"], \
+                                                        "cell": DATASETS_DICTIONARY["combodb_PCA_independent_cell_fillna"], \
+                                                        "drugs": DATASETS_DICTIONARY["combodb_PCA_independent_drugs_fillna"], \
+                                                        "drug_combinations": DATASETS_DICTIONARY["combodb_PCA_independent_drug_combinations_fillna"]})
+
+del merge_object_1
+merge_object_2 = merge_dataset(mordred_file = MORDRED_PROCESSED_COMBODB_FILE, mordred_drug_ID_col = "SMILE")
+merge_object_2.open_datasets({"train": DATASETS_DICTIONARY["combodb_train_dataset"], \
+                                    "test": DATASETS_DICTIONARY["combodb_test_dataset"], \
+                                    "cell": DATASETS_DICTIONARY["combodb_independent_cell"], \
+                                    "drugs": DATASETS_DICTIONARY["combodb_independent_drugs"], \
+                                    "drug_combinations": DATASETS_DICTIONARY["combodb_independent_drug_combinations"]}, \
+                                    id_class_columns = ["ZIP", "Loewe", "HSA", "Bliss", "CSS/RI",\
+                                        "full_agreement", "block_id", "Drug1", "Drug2", "cell","full_agreement_val"])
+merge_object_2.merge_drugs()
+merge_object_2.merge_CCLE(reduce_mode = "autoencoder", NA_handling = "fill", \
+                            output_names_dictionary = {"train": DATASETS_DICTIONARY["combodb_autoencoder_train_dataset_fillna"], \
+                                                        "test": DATASETS_DICTIONARY["combodb_autoencoder_test_dataset_fillna"], \
+                                                        "cell": DATASETS_DICTIONARY["combodb_autoencoder_independent_cell_fillna"], \
+                                                        "drugs": DATASETS_DICTIONARY["combodb_autoencoder_independent_drugs_fillna"], \
+                                                        "drug_combinations": DATASETS_DICTIONARY["combodb_autoencoder_independent_drug_combinations_fillna"]})
+del merge_object_2
+merge_object_3 = merge_dataset(mordred_file = MORDRED_PROCESSED_COMBODB_FILE, mordred_drug_ID_col = "SMILE")
+merge_object_3.open_datasets({"train": DATASETS_DICTIONARY["combodb_train_dataset"], \
+                                    "test": DATASETS_DICTIONARY["combodb_test_dataset"], \
+                                    "cell": DATASETS_DICTIONARY["combodb_independent_cell"], \
+                                    "drugs": DATASETS_DICTIONARY["combodb_independent_drugs"], \
+                                    "drug_combinations": DATASETS_DICTIONARY["combodb_independent_drug_combinations"]}, \
+                                    id_class_columns = ["ZIP", "Loewe", "HSA", "Bliss", "CSS-RI",\
+                                        "full_agreement", "block_id", "Drug1", "Drug2", "cell","full_agreement_val"])
+merge_object_3.merge_drugs()
+merge_object_3.merge_CCLE(reduce_mode = "PCA", NA_handling = "drop", \
+                            output_names_dictionary = {"train": DATASETS_DICTIONARY["combodb_PCA_train_dataset_dropna"], \
+                                                        "test": DATASETS_DICTIONARY["combodb_PCA_test_dataset_dropna"], \
+                                                        "cell": DATASETS_DICTIONARY["combodb_PCA_independent_cell_dropna"], \
+                                                        "drugs": DATASETS_DICTIONARY["combodb_PCA_independent_drugs_dropna"], \
+                                                        "drug_combinations": DATASETS_DICTIONARY["combodb_PCA_independent_drug_combinations_dropna"]})
+
+del merge_object_3
+merge_object_4 = merge_dataset(mordred_file = MORDRED_PROCESSED_COMBODB_FILE, mordred_drug_ID_col = "SMILE")
+merge_object_4.open_datasets({"train": DATASETS_DICTIONARY["combodb_train_dataset"], \
+                                    "test": DATASETS_DICTIONARY["combodb_test_dataset"], \
+                                    "cell": DATASETS_DICTIONARY["combodb_independent_cell"], \
+                                    "drugs": DATASETS_DICTIONARY["combodb_independent_drugs"], \
+                                    "drug_combinations": DATASETS_DICTIONARY["combodb_independent_drug_combinations"]}, \
+                                    id_class_columns = ["ZIP", "Loewe", "HSA", "Bliss", "CSS-RI",\
+                                        "full_agreement", "block_id", "Drug1", "Drug2", "cell","full_agreement_val"])
+merge_object_4.merge_drugs()
+merge_object_4.merge_CCLE(reduce_mode = "autoencoder", NA_handling = "drop", \
+                            output_names_dictionary = {"train": DATASETS_DICTIONARY["combodb_autoencoder_train_dataset_dropna"], \
+                                                        "test": DATASETS_DICTIONARY["combodb_autoencoder_test_dataset_dropna"], \
+                                                        "cell": DATASETS_DICTIONARY["combodb_autoencoder_independent_cell_dropna"], \
+                                                        "drugs": DATASETS_DICTIONARY["combodb_autoencoder_independent_drugs_dropna"], \
+                                                        "drug_combinations": DATASETS_DICTIONARY["combodb_autoencoder_independent_drug_combinations_dropna"]})
+del merge_object_4
+
+"""
 merge_object_1 = merge_dataset()
 merge_object_1.open_datasets({"train": DATASETS_DICTIONARY["train_dataset"], \
                                     "test": DATASETS_DICTIONARY["test_dataset"], \
@@ -423,3 +495,71 @@ merge_object_4.merge_CCLE(reduce_mode = "autoencoder", NA_handling = "drop", \
                                                         "drugs": DATASETS_DICTIONARY["autoencoder_independent_drugs_dropna"], \
                                                         "drug_combinations": DATASETS_DICTIONARY["autoencoder_independent_drug_combinations_dropna"]})
 del merge_object_4
+"""
+"""
+merge_object_5 = merge_dataset()
+merge_object_5.open_datasets({"train": DATASETS_DICTIONARY["train_concentration_dataset"], \
+                                    "test": DATASETS_DICTIONARY["test_concentration_dataset"], \
+                                    "cell": DATASETS_DICTIONARY["independent_cell_concentration"], \
+                                    "drugs": DATASETS_DICTIONARY["independent_drugs_concentration"], \
+                                    "drug_combinations": DATASETS_DICTIONARY["independent_drug_combinations_concentration"]}, \
+                                    id_class_columns = ["ZIP", "Loewe", "HSA", "Bliss", \
+                                        "full_agreement", "block_id", "Drug1", "Drug2", "cell", "conc1", "conc2","combo_score","full_agreement_val"])
+merge_object_5.merge_drugs()
+merge_object_5.merge_CCLE(reduce_mode = "PCA", NA_handling = "fill", \
+                            output_names_dictionary = {"train": DATASETS_DICTIONARY["PCA_train_concentration_dataset_fillna"], \
+                                                        "test": DATASETS_DICTIONARY["PCA_test_concentration_dataset_fillna"], \
+                                                        "cell": DATASETS_DICTIONARY["PCA_independent_cell_concentration_fillna"], \
+                                                        "drugs": DATASETS_DICTIONARY["PCA_independent_drugs_concentration_fillna"], \
+                                                        "drug_combinations": DATASETS_DICTIONARY["PCA_independent_drug_combinations_concentration_fillna"]})
+
+del merge_object_5
+merge_object_6 = merge_dataset()
+merge_object_6.open_datasets({"train": DATASETS_DICTIONARY["train_concentration_dataset"], \
+                                    "test": DATASETS_DICTIONARY["test_concentration_dataset"], \
+                                    "cell": DATASETS_DICTIONARY["independent_cell_concentration"], \
+                                    "drugs": DATASETS_DICTIONARY["independent_drugs_concentration"], \
+                                    "drug_combinations": DATASETS_DICTIONARY["independent_drug_combinations_concentration"]}, \
+                                    id_class_columns = ["ZIP", "Loewe", "HSA", "Bliss", \
+                                        "full_agreement", "block_id", "Drug1", "Drug2", "cell", "conc1", "conc2","combo_score","full_agreement_val"])
+merge_object_6.merge_drugs()
+merge_object_6.merge_CCLE(reduce_mode = "autoencoder", NA_handling = "fill", \
+                            output_names_dictionary = {"train": DATASETS_DICTIONARY["autoencoder_train_concentration_dataset_fillna"], \
+                                                        "test": DATASETS_DICTIONARY["autoencoder_test_concentration_dataset_fillna"], \
+                                                        "cell": DATASETS_DICTIONARY["autoencoder_independent_cell_concentration_fillna"], \
+                                                        "drugs": DATASETS_DICTIONARY["autoencoder_independent_drugs_concentration_fillna"], \
+                                                        "drug_combinations": DATASETS_DICTIONARY["autoencoder_independent_drug_combinations_concentration_fillna"]})
+del merge_object_6
+merge_object_7 = merge_dataset()
+merge_object_7.open_datasets({"train": DATASETS_DICTIONARY["train_concentration_dataset"], \
+                                    "test": DATASETS_DICTIONARY["test_concentration_dataset"], \
+                                    "cell": DATASETS_DICTIONARY["independent_cell_concentration"], \
+                                    "drugs": DATASETS_DICTIONARY["independent_drugs_concentration"], \
+                                    "drug_combinations": DATASETS_DICTIONARY["independent_drug_combinations_concentration"]}, \
+                                    id_class_columns = ["ZIP", "Loewe", "HSA", "Bliss", \
+                                        "full_agreement", "block_id", "Drug1", "Drug2", "cell", "conc1", "conc2","combo_score","full_agreement_val"])
+merge_object_7.merge_drugs()
+merge_object_7.merge_CCLE(reduce_mode = "PCA", NA_handling = "drop", \
+                            output_names_dictionary = {"train": DATASETS_DICTIONARY["PCA_train_concentration_dataset_dropna"], \
+                                                        "test": DATASETS_DICTIONARY["PCA_test_concentration_dataset_dropna"], \
+                                                        "cell": DATASETS_DICTIONARY["PCA_independent_cell_concentration_dropna"], \
+                                                        "drugs": DATASETS_DICTIONARY["PCA_independent_drugs_concentration_dropna"], \
+                                                        "drug_combinations": DATASETS_DICTIONARY["PCA_independent_drug_combinations_concentration_dropna"]})
+
+del merge_object_7
+merge_object_8 = merge_dataset()
+merge_object_8.open_datasets({"train": DATASETS_DICTIONARY["train_concentration_dataset"], \
+                                    "test": DATASETS_DICTIONARY["test_concentration_dataset"], \
+                                    "cell": DATASETS_DICTIONARY["independent_cell_concentration"], \
+                                    "drugs": DATASETS_DICTIONARY["independent_drugs_concentration"], \
+                                    "drug_combinations": DATASETS_DICTIONARY["independent_drug_combinations_concentration"]}, \
+                                    id_class_columns = ["ZIP", "Loewe", "HSA", "Bliss", \
+                                        "full_agreement", "block_id", "Drug1", "Drug2", "cell", "conc1", "conc2","combo_score","full_agreement_val"])
+merge_object_8.merge_drugs()
+merge_object_8.merge_CCLE(reduce_mode = "autoencoder", NA_handling = "drop", \
+                            output_names_dictionary = {"train": DATASETS_DICTIONARY["autoencoder_train_concentration_dataset_dropna"], \
+                                                        "test": DATASETS_DICTIONARY["autoencoder_test_concentration_dataset_dropna"], \
+                                                        "cell": DATASETS_DICTIONARY["autoencoder_independent_cell_concentration_dropna"], \
+                                                        "drugs": DATASETS_DICTIONARY["autoencoder_independent_drugs_concentration_dropna"], \
+                                                        "drug_combinations": DATASETS_DICTIONARY["autoencoder_independent_drug_combinations_concentration_dropna"]})
+"""

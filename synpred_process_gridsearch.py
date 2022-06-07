@@ -9,7 +9,10 @@ from synpred_variables import SYSTEM_SEP, PARAGRAPH_SEP, CSV_SEP, \
                                 DATASETS_DICTIONARY_NO_CONCENTRATION, \
                                 INTERMEDIATE_SEP, ML_GRIDSEARCH_RESULTS, \
                                 ML_GRIDSEARCH_PARAMETERS, DL_GRIDSEARCH_PARAMETERS, \
-                                EVALUATION_DL_FOLDER, DL_GRIDSEARCH_RESULTS
+                                EVALUATION_DL_FOLDER, DL_GRIDSEARCH_RESULTS, \
+                                ML_DRUGCOMB_GRIDSEARCH_PARAMETERS, DL_COMBODB_GRIDSEARCH_RESULTS, \
+                                ML_DRUGCOMB_GRIDSEARCH_RESULTS, DL_COMBODB_GRIDSEARCH_PARAMETERS, \
+                                ML_DRUGCOMB_GRIDSEARCH_RESULTS_PROCESSED
 
 __author__ = "A.J. Preto"
 __email__ = "martinsgomes.jose@gmail.com"
@@ -23,7 +26,7 @@ def process_ML_parameters(input_file = ML_GRIDSEARCH_RESULTS, \
     Open the input csv file and identify the best performing parameters for non-DL models
     """
     results_dictionary = {}
-    regression_list = ["Loewe","Bliss","ZIP","HSA"]
+    regression_list = ["Loewe","Bliss","ZIP","HSA","CSS-RI"]
     count_regressor = 0
     with open(output_file, "w") as write_file:
         with open(input_file, "r") as read_file:
@@ -129,5 +132,10 @@ def process_DL_parameters(input_file = DL_GRIDSEARCH_RESULTS, \
                     PARAGRAPH_SEP
                 write_file.write(to_write_test)
 
-process_ML_parameters()
-process_DL_parameters()
+#process_ML_parameters()
+#process_DL_parameters()
+process_ML_parameters(input_file = ML_DRUGCOMB_GRIDSEARCH_RESULTS, \
+                            output_file = ML_DRUGCOMB_GRIDSEARCH_RESULTS_PROCESSED)
+process_DL_parameters(input_file = DL_COMBODB_GRIDSEARCH_RESULTS, \
+                            results_folder = EVALUATION_DL_FOLDER, output_file = DL_COMBODB_GRIDSEARCH_PARAMETERS, \
+                            starting_file = "")

@@ -19,7 +19,9 @@ from synpred_variables import SYSTEM_SEP, PARAGRAPH_SEP, CSV_SEP, \
                             RANDOM_STATE, EVALUATION_NON_DL_FOLDER, \
                             INTERMEDIATE_SEP, REDEPLOYMENT_FOLDER, SUPPORT_FOLDER, RANDOM_STATE, \
                             DATASETS_DICTIONARY_NO_CONCENTRATION, \
-                            METRICS_CLASSIFICATION, METRICS_REGRESSION, POSSIBLE_TARGETS
+                            METRICS_CLASSIFICATION, METRICS_REGRESSION, POSSIBLE_TARGETS, \
+                            DATASETS_DICTIONARY_DRUGCOMB, ML_GRIDSEARCH_RESULTS, \
+                            ML_DRUGCOMB_GRIDSEARCH_RESULTS, POSSIBLE_TARGETS_DRUGCOMB
 import xgboost as xgb
 import pickle
 from sklearn.model_selection import GridSearchCV
@@ -36,14 +38,15 @@ random.seed(RANDOM_STATE)
 
 def deploy_ML_pipeline(input_data_dictionary, input_ML_dictionary, verbose = True, \
                         save_model = True, \
-                        output_file_name = SUPPORT_FOLDER + SYSTEM_SEP + "ML_gridsearch.csv"):
+                        output_file_name = ML_GRIDSEARCH_RESULTS, other_info = ""):
 
     """
     Deploy ML pipeline, with gridsearch, on the dataset
     """
     with open(output_file_name, "w") as output_file:
         for current_dataset in input_data_dictionary.keys():
-            for current_target in POSSIBLE_TARGETS:
+            #for current_target in POSSIBLE_TARGETS:
+            for current_target in POSSIBLE_TARGETS_DRUGCOMB:
                 if current_target == "full_agreement":
                     problem_type = "classification"
                     metrics = METRICS_CLASSIFICATION
@@ -68,7 +71,7 @@ def deploy_ML_pipeline(input_data_dictionary, input_ML_dictionary, verbose = Tru
                                     n_jobs = -1)
                     data_dictionary = prepare_dataset(input_data_dictionary[current_dataset][0], \
                                                         input_data_dictionary[current_dataset][1], \
-                                                        sample_size = 0.10, sample_mode = True, \
+                                                        sample_size = 0.05, sample_mode = True, \
                                                         target_column = current_target, task_type = problem_type)
                     current_gridsearch.fit(data_dictionary["train_features"], data_dictionary["train_class"].values.ravel())
                     predictor_object = current_gridsearch.best_estimator_
@@ -80,7 +83,7 @@ def deploy_ML_pipeline(input_data_dictionary, input_ML_dictionary, verbose = Tru
                     output_file.write(current_row[0:-1] + PARAGRAPH_SEP)
                     predicted_train = predictor_object.predict(data_dictionary["train_features"])
                     predicted_test = predictor_object.predict(data_dictionary["test_features"])
-                    output_name = current_dataset + INTERMEDIATE_SEP + current_method + INTERMEDIATE_SEP + current_target + INTERMEDIATE_SEP
+                    output_name = current_dataset + INTERMEDIATE_SEP + current_method + INTERMEDIATE_SEP + other_info + current_target + INTERMEDIATE_SEP
                     model_train_results = model_evaluation(data_dictionary["train_class"], predicted_train, \
                                         verbose = False, write_mode = True, subset_type = output_name + "train", \
                                         task_type = problem_type)
@@ -92,7 +95,7 @@ def deploy_ML_pipeline(input_data_dictionary, input_ML_dictionary, verbose = Tru
                         output_file.write(str(current_metric) + CSV_SEP + "Train:" + \
                                     str(np.round(train_metric,4)) + CSV_SEP +  "Test:" + \
                                     str(np.round(test_metric,4)) + CSV_SEP + \
-                                    problem_type + PARAGRAPH_SEP)
+                                    current_target + PARAGRAPH_SEP)
 
 ML_dictionary_class = {"RF": [RandomForestClassifier(random_state = RANDOM_STATE, n_jobs = -1, max_features = "auto", bootstrap = True), \
                         {"n_estimators":[10,100,1000], "max_depth": [None, 1, 5], "min_samples_split": [2,5,10], \
@@ -102,7 +105,7 @@ ML_dictionary_class = {"RF": [RandomForestClassifier(random_state = RANDOM_STATE
                     "max_depth": [None, 1, 5], "min_samples_leaf": [1, 2, 4]}], 
                 "SVM": [LinearSVC(random_state = RANDOM_STATE), {"C":[0.1,0.5,1.0]}],
                 "SGD": [SGDClassifier(random_state = RANDOM_STATE, n_jobs = -1), {"penalty": ["l2", "l1", "elasticnet"], \
-                "alpha": [0.00001,0.0001,0.001]}],\
+                        "alpha": [0.00001,0.0001,0.001]}],\
                 "KNN": [KNeighborsClassifier(n_jobs = -1), {"n_neighbors": [2,5,10,25]}], \
                 "XGB": [xgb.XGBClassifier(n_jobs = -1, random_state = RANDOM_STATE), {"max_depth":[2,6,10], \
                 "alpha":[0,0.25,0.50], "n_estimators": [10,100,1000]}]}
@@ -120,4 +123,6 @@ ML_dictionary_regression = {"RF": [RandomForestRegressor(random_state = RANDOM_S
                 "XGB": [xgb.XGBRegressor(n_jobs = -1, random_state = RANDOM_STATE), {"max_depth":[2,6,10], \
                 "alpha":[0,0.25,0.50], "n_estimators": [10,100,1000]}]}
 
-deploy_ML_pipeline(DATASETS_DICTIONARY_NO_CONCENTRATION, {"classification": ML_dictionary_class, "regression": ML_dictionary_regression}, save_model = False)
+#deploy_ML_pipeline(DATASETS_DICTIONARY_NO_CONCENTRATION, {"classification": ML_dictionary_class, "regression": ML_dictionary_regression}, save_model = False)
+deploy_ML_pipeline(DATASETS_DICTIONARY_DRUGCOMB, {"classification": ML_dictionary_class, "regression": ML_dictionary_regression}, \
+    save_model = False, output_file_name = ML_DRUGCOMB_GRIDSEARCH_RESULTS, other_info = "combodb_")

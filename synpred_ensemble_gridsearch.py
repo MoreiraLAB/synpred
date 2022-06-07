@@ -33,8 +33,8 @@ import sklearn
 from synpred_variables import REDEPLOYMENT_FOLDER, SYSTEM_SEP, \
                             CSV_SEP, INTERMEDIATE_SEP, \
                             DL_SAVED_MODELS, RANDOM_STATE, \
-                            PKL_TERMINATION, DATASETS_DICTIONARY_NO_CONCENTRATION, \
-                            SUPPORT_FOLDER, POSSIBLE_TARGETS
+                            PKL_TERMINATION, DATASETS_DICTIONARY_DRUGCOMB, \
+                            SUPPORT_FOLDER, POSSIBLE_TARGETS_DRUGCOMB
 from synpred_support_functions import model_evaluation, prepare_dataset
 import h5py
 
@@ -84,8 +84,9 @@ def locate_models(input_folder, folder_condition = "ML", secondary_condition = "
         if folder_condition == "ML":
             if files.endswith(PKL_TERMINATION):
                 split_file = files.split(INTERMEDIATE_SEP)
-                if (split_file[0] == secondary_condition) and (split_file[-1].split(".")[0] == target):
-                    model_name =  folder_condition + INTERMEDIATE_SEP + INTERMEDIATE_SEP.join(split_file[0:-1])
+                
+                if (split_file[0] == secondary_condition) and (files.endswith(target + "drugcomb_.pkl")):
+                    model_name =  folder_condition + INTERMEDIATE_SEP + INTERMEDIATE_SEP.join(split_file[0:-2]) + INTERMEDIATE_SEP + target
                     files_loc = input_folder + SYSTEM_SEP + files
                     if split_file[1] == third_condition:
                         pickle_file = open(files_loc, 'rb')
@@ -136,10 +137,10 @@ class ensemble:
         self.all_models_dict = dict(self.models_dict_ML, **self.models_dict_DL)
         self.preprocess = third_cond
         if third_cond == "drop":
-            self.datasets_dictionary = {"PCA_drop": DATASETS_DICTIONARY_NO_CONCENTRATION["PCA_dropna"]}
+            self.datasets_dictionary = {"PCA_drop": DATASETS_DICTIONARY_DRUGCOMB["PCA_dropna"]}
             self.processing_type = "PCA_drop"
         elif third_cond == "non_drop":
-            self.datasets_dictionary = {"PCA": DATASETS_DICTIONARY_NO_CONCENTRATION["PCA_fillna"]}
+            self.datasets_dictionary = {"PCA": DATASETS_DICTIONARY_DRUGCOMB["PCA_fillna"]}
             self.processing_type = "PCA"
         self.data_dictionary = prepare_dataset(self.datasets_dictionary[self.processing_type][0], self.datasets_dictionary[self.processing_type][1], \
                                                     target_column = current_target, task_type = self.problem_type)
@@ -171,6 +172,11 @@ class ensemble:
 
         if prediction_mode == "classes":
             self.predictions_dictionary_classes = {}
+            if os.path.exists(self.predictions_classes_path):
+                with open(self.predictions_classes_path, 'rb') as handle:
+                    self.predictions_dictionary_classes = pickle.load(handle)
+                    return
+
             for current_method in self.all_models_dict.keys():
                 classifier = self.all_models_dict[current_method]
                 mode = current_method.split(INTERMEDIATE_SEP)[0]
@@ -190,6 +196,10 @@ class ensemble:
 
         if prediction_mode == "probabilities":
             self.predictions_dictionary_probs = {}
+            if os.path.exists(self.predictions_probs_path):
+                with open(self.predictions_probs_path, 'rb') as handle:
+                    self.predictions_dictionary_probs = pickle.load(handle)
+                    return
             for current_method in self.all_models_dict.keys():
                 classifier = self.all_models_dict[current_method]
                 mode = current_method.split(INTERMEDIATE_SEP)[0]
@@ -241,7 +251,7 @@ class ensemble:
                 output_table.append(table_row)
         return np.array(output_table).transpose()
 
-    def generate_tables(self, pred_mode = "probabilities"):
+    def generate_tables(self, pred_mode = "probabilities", sampling = 0.05):
 
         train_predictions_table = self.join_methods_predictions(subset = "train", mode = pred_mode)
         self.train_predictions_table = np.apply_along_axis(replace_outliers, axis = 1, arr = train_predictions_table)
@@ -253,13 +263,15 @@ class ensemble:
 
     def nn_ensemble(self, input_array):
 
-        architectures = [[10]*2,[10]*3,[10]*4,[10]*5,[10]*7,\
-                            [25]*2,[25]*3,[25]*4,[25]*5,[25]*7,\
-                            [50]*2,[50]*3,[50]*4,[50]*5,[50]*7,\
-                            [100]*2,[100]*3,[100]*4,[100]*5,[100]*7,\
-                            [500]*2,[500]*3,[500]*4,[500]*5,[500]*7]
-        dropout_rates = [0.0,0.10,0.20,0.30,0.40,0.50,0.60,0.70,0.80,0.90]
+        from sklearn.model_selection import train_test_split
+        architectures = [[10]*3,[10]*5,[10]*7,\
+                            [50]*3, [50]*5, [50]*7,\
+                            [100]*3,[100]*5,[100]*7, \
+                            [250]*3,[250]*5,[250]*7, \
+                            [500]*3,[500]*5,[500]*7]
+        dropout_rates = [0.0,0.30,0.60,0.90]
         count = 1
+        discard_x_train, sample_x_train, discard_y_train, sample_y_train = train_test_split(pd.DataFrame(input_array), self.classes_dictionary["train_class"], test_size = 0.05, random_state = RANDOM_STATE)
         for current_architecture in architectures:
             for current_dropout_rate in dropout_rates:
                 model_name = "ensemble" + INTERMEDIATE_SEP + str(count) + INTERMEDIATE_SEP + \
@@ -273,16 +285,16 @@ class ensemble:
                 optimizer = tf.keras.optimizers.Adam(0.0001)
                 if self.problem_type == "classification":
                     nn_model.model.compile(loss = 'binary_crossentropy', optimizer = optimizer, metrics = ['accuracy'])
-                    nn_model.model.fit(x = input_array, \
-                                y = self.classes_dictionary["train_class"], \
-                                epochs = 5, validation_split = 0.10)
+                    nn_model.model.fit(x = sample_x_train.astype(float), \
+                                y = sample_y_train, \
+                                epochs = 10, validation_split = 0.10)
                     train_predictions = [int(np.round(x)) for x in nn_model.model.predict(self.train_predictions_table)]
                     test_predictions = [int(np.round(x)) for x in nn_model.model.predict(self.test_predictions_table)]
                 elif self.problem_type == "regression":
                     nn_model.model.compile(loss = 'mse', optimizer = optimizer, metrics = ['mse','mae'])
-                    nn_model.model.fit(x = self.train_predictions_table.astype(float), \
-                                y = self.classes_dictionary["train_class"], \
-                                epochs = 5, validation_split = 0.10)
+                    nn_model.model.fit(x = sample_x_train.astype(float), \
+                                y = sample_y_train, \
+                                epochs = 10, validation_split = 0.10)
                     train_predictions = [x for x in nn_model.model.predict(self.train_predictions_table.astype(float))]
                     test_predictions = [x for x in nn_model.model.predict(self.test_predictions_table.astype(float))]
                 model_evaluation(train_predictions, self.classes_dictionary["train_class"], \
@@ -302,9 +314,9 @@ class ensemble:
             import xgboost as xgb
             ML_dictionary = {"RF": RandomForestClassifier(random_state = RANDOM_STATE),
                         "ETC": ExtraTreesClassifier(random_state = RANDOM_STATE), 
-                        "SVM": SVC(random_state = RANDOM_STATE),
-                        "SGD": SGDClassifier(random_state = RANDOM_STATE),
-                        "KNN": KNeighborsClassifier(), \
+                        #"SVM": SVC(random_state = RANDOM_STATE),
+                        #"SGD": SGDClassifier(random_state = RANDOM_STATE),
+                        #"KNN": KNeighborsClassifier(), \
                         "XGB": xgb.XGBClassifier(n_jobs = -1, random_state = RANDOM_STATE),
                         }
         elif self.problem_type == "regression":
@@ -315,9 +327,9 @@ class ensemble:
             import xgboost as xgb
             ML_dictionary = {"RF": RandomForestRegressor(random_state = RANDOM_STATE),
                         "ETC": ExtraTreesRegressor(random_state = RANDOM_STATE), 
-                        "SVM": SVR(),
-                        "SGD": SGDRegressor(random_state = RANDOM_STATE),
-                        "KNN": KNeighborsRegressor(), \
+                        #"SVM": SVR(),
+                        #"SGD": SGDRegressor(random_state = RANDOM_STATE),
+                        #"KNN": KNeighborsRegressor(), \
                         "XGB": xgb.XGBRegressor(n_jobs = -1, random_state = RANDOM_STATE),
                         }
         for current_key in ML_dictionary.keys():
@@ -342,20 +354,21 @@ class ensemble:
 
         self.nn_ensemble(self.train_predictions_table)
         
-        self.ML_ensemble_models(self.train_predictions_table)
+        #self.ML_ensemble_models(self.train_predictions_table)
 
-
-for target in POSSIBLE_TARGETS:
+#POSSIBLE_TARGETS_DRUGCOMB = ["Loewe","Bliss","ZIP","HSA","CSS-RI","full_agreement"]
+for target in ["Loewe","Bliss","ZIP"]:
     if target == "full_agreement":
         prob_type = "classification"
     else:
         prob_type = "regression"
     regular_object = ensemble(REDEPLOYMENT_FOLDER, DL_SAVED_MODELS, "non_drop", write_class_pickle = False, \
                                 current_target = target, problem_type = prob_type)
-
+    print("Starting:", target)
     regular_object.target_generator(prediction_mode = "probabilities")
+    print("Calculated probabilities:", target)
     regular_object.target_generator(prediction_mode = "classes")
-
+    print("Calculated classes:", target)
     regular_object.load_pred_dicts()
     regular_object.generate_tables()
     regular_object.deploy_ensemble()

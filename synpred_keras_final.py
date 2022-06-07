@@ -1,15 +1,6 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 """
 Script to deploy tensorflow fully
 """
-
-__author__ = "A.J.Preto & Pedro Matos-Filipe"
-__email__ = "martinsgomes.jose@gmail.com"
-__group__ = "Data-Driven Molecular Design"
-__group_leader__ = "Irina S. Moreira"
-__project__ = "SynPred"
 
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
@@ -36,6 +27,12 @@ from synpred_variables import INTERMEDIATE_SEP, DL_SAVED_MODELS, \
 np.random.seed(RANDOM_STATE)
 random.seed(RANDOM_STATE)
 tf.compat.v1.set_random_seed(RANDOM_STATE)
+
+__author__ = "A.J.Preto & Pedro Matos-Filipe"
+__email__ = "martinsgomes.jose@gmail.com"
+__group__ = "Data-Driven Molecular Design"
+__group_leader__ = "Irina S. Moreira"
+__project__ = "SynPred"
 
 class neural_network:
 
@@ -119,16 +116,16 @@ else:
     problem_type = "regression"
 
 method = target_col
-train = DATASET_FOLDER + SYSTEM_SEP + input_mode.split(INTERMEDIATE_SEP)[0] + INTERMEDIATE_SEP + \
-            "train" + INTERMEDIATE_SEP + input_mode.split(INTERMEDIATE_SEP)[1] + ".csv"
-test = DATASET_FOLDER + SYSTEM_SEP + input_mode.split(INTERMEDIATE_SEP)[0] + INTERMEDIATE_SEP + \
-            "test" + INTERMEDIATE_SEP + input_mode.split(INTERMEDIATE_SEP)[1] + ".csv"
+train = DATASET_FOLDER + SYSTEM_SEP + input_mode.split(INTERMEDIATE_SEP)[0] + INTERMEDIATE_SEP + input_mode.split(INTERMEDIATE_SEP)[1] + INTERMEDIATE_SEP + \
+            "train" + INTERMEDIATE_SEP + input_mode.split(INTERMEDIATE_SEP)[2] + ".csv"
+test = DATASET_FOLDER + SYSTEM_SEP + input_mode.split(INTERMEDIATE_SEP)[0] + INTERMEDIATE_SEP + input_mode.split(INTERMEDIATE_SEP)[1] + INTERMEDIATE_SEP + \
+            "test" + INTERMEDIATE_SEP + input_mode.split(INTERMEDIATE_SEP)[2] + ".csv"
 outp = sys.argv[-1]
 input_architecture = [int(x) for x in ast.literal_eval(sys.argv[1])]
 
-if input_mode.split(INTERMEDIATE_SEP)[0] == "PCA":
+if input_mode.split(INTERMEDIATE_SEP)[1] == "PCA":
     input_features = 1347
-elif input_mode.split(INTERMEDIATE_SEP)[0] == "autoencoder":
+elif input_mode.split(INTERMEDIATE_SEP)[1] == "autoencoder":
     input_features = 4229
 
 raw_model =  neural_network(input_architecture, input_features, \
