@@ -22,15 +22,14 @@ To properly run SynPred the user should setup an isolated Conda environment. Ple
 
 Then, the user needs to install several packages, for which will require *administrative* permissions:
 
-3. `conda install -c conda-forge r-base=3.6.3` - R is only required if you are trying to deploy the SynPred pipeline from scratch, and not for the stand-alone version, which was provided. If you are going to deploy the full pipeline, make sure to install this specific version of R, as others might have compatibility issues on the `synergyfinder` package.
-4. `conda install -c conda-forge rdkit` - Install rdkit for molecular feature extraction with mordred.
-5. `pip install pandas numpy rdkit-pypi` - Install useful packages.
-6. `pip install mordred` - Install mordred for feature extraction.
-7. `pip install pubchempy` - Install pubchempy to download SMILE from name.
-8. `pip install tensorflow==2.3.1` - Install this version of tensorflow.
-9. `pip install scikit-learn` - Scikit-learn is required at many steps of the pipeline. 
-10. `pip install xgboost`- The package to use the Extreme Gradient Boosting methods needs to be installed separately from scikit-learn.
-11. `pip install h5py`- Allows storage in h5 format.
+3. `conda install -c conda-forge rdkit` - Install rdkit for molecular feature extraction with mordred.
+4. `pip install pandas numpy rdkit-pypi` - Install useful packages.
+5. `pip install mordred` - Install mordred for feature extraction.
+6. `pip install pubchempy` - Install pubchempy to download SMILE from name.
+7. `pip install tensorflow==2.3.1` - Install this version of tensorflow.
+8. `pip install scikit-learn` - Scikit-learn is required at many steps of the pipeline. 
+9. `pip install xgboost`- The package to use the Extreme Gradient Boosting methods needs to be installed separately from scikit-learn.
+10. `pip install h5py`- Allows storage in h5 format.
 
 **Stand-alone Deployment**
 
