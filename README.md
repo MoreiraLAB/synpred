@@ -1,7 +1,7 @@
 # SynPred
 *Full Machine Learning Pipeline for the Synpred prediction and Stand-alone deployment*
 <p>
-<b>Background</b>: In cancer research, high-throughput screening technologies produce large amounts of multiomics data from different populations and cell types. However, analysis of such data encounters difficulties due to disease heterogeneity, further exacerbated by human biological complexity and genomic variability. The specific profile of cancer as a disease (or, more realistically, a set of diseases) urges the development of approaches that maximize the effect while minimizing the dosage of drugs. Now is the time to redefine the approach to drug discovery, bringing an Artificial Intelligence-powered informational view that integrates the relevant scientific fields and explores new territories.
+<b>Background<: In cancer research, high-throughput screening technologies produce large amounts of multiomics data from different populations and cell types. However, analysis of such data encounters difficulties due to disease heterogeneity, further exacerbated by human biological complexity and genomic variability. The specific profile of cancer as a disease (or, more realistically, a set of diseases) urges the development of approaches that maximize the effect while minimizing the dosage of drugs. Now is the time to redefine the approach to drug discovery, bringing an Artificial Intelligence-powered informational view that integrates the relevant scientific fields and explores new territories.
 </p>
 <p>
 <b>Results</b>: Here, we show SYNPRED, an interdisciplinary approach that leverages specifically designed ensembles of AI algorithms, links omics and biophysical traits to predict anticancer drug synergy. It uses five reference models (Bliss, Highest Single Agent, Loewe, Zero Interaction Potency and Combination Sensitivity Score), which, coupled with AI algorithms, allowed us to attain the ones with the best predictive performance and pinpoint the most appropriate reference model for synergy prediction, often overlooked in similar studies. By using an independent test set, SYNPRED exhibits state-of-the-art performance metrics either in the classification (accuracy – 0.85, precision – 0.91, recall – 0.90, AUROC – 0.80, and F1-score - 0.91) or in the regression models, mainly when using the Combination Sensitivity Score synergy reference model (RMSE – 11.07, MSE – 122.61, Pearson – 0.86, MAE – 7.43, Spearman – 0.87). Moreover, data interpretability was achieved by deploying the most current and robust feature importance approaches. A simple web-based application was constructed, allowing easy access by non-expert researchers.
@@ -23,22 +23,14 @@ To properly run SynPred the user should setup an isolated Conda environment. Ple
 Then, the user needs to install several packages, for which will require *administrative* permissions:
 
 3. `conda install -c conda-forge r-base=3.6.3` - R is only required if you are trying to deploy the SynPred pipeline from scratch, and not for the stand-alone version, which was provided. If you are going to deploy the full pipeline, make sure to install this specific version of R, as others might have compatibility issues on the `synergyfinder` package.
-4. Only for the full SynPred deployment: open R (after step 3) on the command line/terminal:
-	- `if (!requireNamespace("BiocManager", quietly = TRUE))
-    	install.packages("BiocManager")`
-    - `BiocManager::install("synergyfinder")`
-    - `BiocManager::install("rcellminer")`
-    - `library(synergyfinder)` - Check if the package was properly installed.
-    - `library(rcellminer)` - Check if the package was properly installed.
-    - `q()` - Exit the R shell.
-3. `conda install -c conda-forge rdkit` - Install rdkit for molecular feature extraction with mordred.
-4. `pip install pandas numpy rdkit-pypi` - Install useful packages.
-5. `pip install mordred` - Install mordred for feature extraction.
-6. `pip install pubchempy` - Install pubchempy to download SMILE from name.
-7. `pip install tensorflow==2.3.1` - Install this version of tensorflow.
-8. `pip install scikit-learn` - Scikit-learn is required at many steps of the pipeline. 
-9. `pip install xgboost`- The package to use the Extreme Gradient Boosting methods needs to be installed separately from scikit-learn.
-10. `pip install h5py`- Allows storage in h5 format.
+4. `conda install -c conda-forge rdkit` - Install rdkit for molecular feature extraction with mordred.
+5. `pip install pandas numpy rdkit-pypi` - Install useful packages.
+6. `pip install mordred` - Install mordred for feature extraction.
+7. `pip install pubchempy` - Install pubchempy to download SMILE from name.
+8. `pip install tensorflow==2.3.1` - Install this version of tensorflow.
+9. `pip install scikit-learn` - Scikit-learn is required at many steps of the pipeline. 
+10. `pip install xgboost`- The package to use the Extreme Gradient Boosting methods needs to be installed separately from scikit-learn.
+11. `pip install h5py`- Allows storage in h5 format.
 
 **Stand-alone Deployment**
 
