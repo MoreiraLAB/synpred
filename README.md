@@ -59,7 +59,7 @@ After downloading/cloning this repository, there are still some changes to be ma
 	- train_log
 	- split_tables
 	- saved_model
-3. Some of the files required are not available on this page as either they are too large or were developed by a third party. Particularly, the CCLE subsets, can be downloaded at CCLE website, and should go on the CCLE folder. There are 7 files required, please check file `support/CCLE_log_file.csv` to see which files are required for the full SynPred deployment. These files should have the same names as indicated in column `File_name` of the log file and go into `CCLE` folder. Furthermore, the user is also required to have the `NCI_ALMANAC` dataset at the location and name `datasets/NCI_ALMANAC.csv`. Finally, the user should change the `datasets/example.csv` file to the file with the combinations, with the same format and columns as advised.
+3. Some of the files required are not available on this page as either they are too large or were developed by a third party. Particularly, the CCLE subsets, can be downloaded at CCLE website, and should go on the CCLE folder. There are 7 files required, please check file `support/CCLE_log_file.csv` to see which files are required for the full SynPred deployment. These files should have the same names as indicated in column `File_name` of the log file and go into `CCLE` folder. Furthermore, the user is also required to have the `DRUGCOMB` dataset at the location and name `datasets/drug_comb.csv`. Finally, the user should change the `datasets/example.csv` file to the file with the combinations, with the same format and columns as advised.
 
 **Deploy the SynPred pipeline**
 
@@ -72,13 +72,13 @@ After performing the changes previously pointed and properly installing and sett
 6. `synpred_edit_dataset.py` - Start by editing the dataset to generate the full-agreement class and generate the several different splits.
 	Input and output files at the "datasets" folder.
 7. `synpred_generate_final_datasets.py` - Run this script to generate dimensionality reduction (PCA) on the CCLE subsets. This also generates the dataset split combinations with the different pre-processings (missing values: drop or replace with 0; dimensionality reduction: PCA or autoencoder).
-8. `synpred_keras.py`- Neural network to be run with keras/tensorflow. To be called from the command line or script 11.
+8. `synpred_keras.py`- Neural network to be run with keras/tensorflow. To be called from the command line or script 9.
 9. `synpred_gridsearch_keras.py` - Run the gridsearch on the `synpred_keras.py`. Outputs to "evaluation_summary" folder. This makes use of only 10% of the train dataset.
 10. `synpred_ML_gridsearch.py` - Run the gridsearch for the ML methods that do not involve Keras on 50% of the training set.
 11. `synpred_process_gridsearch.py` - Process the gridsearch results to yield the best parameters.
-12. `synpred_keras_final.py` - Neural network with keras/tensorflow after gridsearch. To be called from the command line or script 13.
+12. `synpred_keras_final.py` - Neural network with keras/tensorflow after gridsearch. To be called from the command line or script 14.
 13. `synpred_best_keras_final.py` - Run and save the best keras models.
-14. `synpred_ML.py` - Run the best ML methods that do not involve Keras on the full training set, with the best parameters from script 17. Save the best models. 
+14. `synpred_ML.py` - Run the best ML methods that do not involve Keras on the full training set, with the best parameters from script 11. Save the best models. 
 15. `synpred_ensemble_gridsearch.py` - Test several ensemble methods, namely, several Keras neural network.
 16. `synpred_ensemble_final.py` - Run the best ensemble model with Keras.
 
