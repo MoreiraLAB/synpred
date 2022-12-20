@@ -40,7 +40,7 @@ Finally, the user must create (if not already cloned) a folder with the name `st
 
 The way to run the SynPred stand-alone deployment is, after initializing the conda environment typing:
 
-`python standalone_synpred.py your_table_name.csv`
+`python standalone_deploy_model.py your_table_name.csv`
 
 The user can then check the features and results calculated at the `standalone_results` folder. The user was to be careful and avoid overwriting of the predictions when running the script with different input tables. To check an example of the input file, consult the `standalone_example.csv`, in the folder of the scripts. The names of the columns should be the same, as well as the content. 
 
