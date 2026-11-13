@@ -28,10 +28,54 @@ from resources.feature_mining.mol_fingerprint import drug_features_extractor
 def subset_table_rows(input_cell_line, input_file):
 
     """
-    Identify the cells selected
+    Select the requested cell lines from a bundled PCA feature block.
+
+    Historical PCA files use the identifier column ``cell`` while the
+    standalone code uses the canonical name ``cells``. Feature columns in
+    the bundled files are already prefixed (for example ``CCLE_5_0``);
+    prefixes are temporarily removed here because callers add them back.
     """
-    opened_file = pd.read_csv(input_file, sep = SEP, header = 0)
-    subset_table = opened_file.loc[opened_file[CELL_LINES_COLUMN].isin(input_cell_line)]
+    from pathlib import Path
+
+    opened_file = pd.read_csv(input_file, sep=SEP, header=0)
+
+    if CELL_LINES_COLUMN not in opened_file.columns:
+        aliases = [
+            column
+            for column in ("cell", "cells")
+            if column in opened_file.columns
+        ]
+
+        if len(aliases) != 1:
+            raise ValueError(
+                "Could not identify the cell-line column in {}: {}".format(
+                    input_file,
+                    list(opened_file.columns),
+                )
+            )
+
+        opened_file = opened_file.rename(
+            columns={aliases[0]: CELL_LINES_COLUMN}
+        )
+
+    stem = Path(input_file).stem
+
+    if stem.startswith("PCA_"):
+        block = stem.split("_", 1)[1]
+        prefix = "CCLE_{}_".format(block)
+
+        opened_file = opened_file.rename(
+            columns={
+                column: column[len(prefix):]
+                for column in opened_file.columns
+                if column.startswith(prefix)
+            }
+        )
+
+    subset_table = opened_file.loc[
+        opened_file[CELL_LINES_COLUMN].isin(input_cell_line)
+    ].copy()
+
     return subset_table
 
 def locate_common(input_tables = ["","",""], target_column = CELL_LINES_COLUMN):
@@ -56,6 +100,39 @@ def empty_zeros(input_table, current_cell):
     else:
         return input_table
 
+
+
+def zero_impute_missing_genomic_features(input_table):
+
+    """
+    Replace missing values in genomic PCA blocks with zero.
+
+    The original pipeline defines zero-valued genomic features for a cell
+    line that is absent from an individual PCA block. Left merges can
+    reintroduce missing values, so imputation is applied after assembling
+    all seven genomic blocks.
+    """
+    result = input_table.copy()
+
+    feature_columns = [
+        column
+        for column in result.columns
+        if column != CELL_LINES_COLUMN
+    ]
+
+    numeric = result[feature_columns].apply(
+        pd.to_numeric,
+        errors="coerce"
+    )
+
+    numeric = numeric.replace(
+        [float("inf"), float("-inf")],
+        0.0
+    ).fillna(0.0)
+
+    result.loc[:, feature_columns] = numeric
+
+    return result
 
 def generate_features_file(input_cell_line, input_drug_A, input_drug_B):
     """
@@ -96,6 +173,7 @@ def generate_features_file(input_cell_line, input_drug_A, input_drug_B):
     five_genomic_features = pd.merge(four_genomic_features, cell_14_filtered, on = CELL_LINES_COLUMN, how = "left")
     six_genomic_features = pd.merge(five_genomic_features, cell_17_filtered, on = CELL_LINES_COLUMN, how = "left")
     final_genomic_features = pd.merge(six_genomic_features, cell_22_filtered, on = CELL_LINES_COLUMN, how = "left")
+    final_genomic_features = zero_impute_missing_genomic_features(final_genomic_features)
     drug_A_features = pd.DataFrame(drug_features_extractor(input_drug_A)).transpose()
     drug_B_features = pd.DataFrame(drug_features_extractor(input_drug_B)).transpose()
 
@@ -146,6 +224,7 @@ def generate_features_dataframe(input_table, cell_col = "Cell", Drug1_col = "Dru
     five_genomic_features = pd.merge(four_genomic_features, cell_14_filtered, on = CELL_LINES_COLUMN, how = "left")
     six_genomic_features = pd.merge(five_genomic_features, cell_17_filtered, on = CELL_LINES_COLUMN, how = "left")
     final_genomic_features = pd.merge(six_genomic_features, cell_22_filtered, on = CELL_LINES_COLUMN, how = "left")
+    final_genomic_features = zero_impute_missing_genomic_features(final_genomic_features)
     
     unique_drugs = list(input_table[Drug1_col].unique()) + list(input_table[Drug2_col].unique())
     drug_features_dictionary = {}

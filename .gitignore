@@ -1,0 +1,9 @@
+
+# Large pretrained models are distributed separately
+/standalone_models/
+
+# Generated standalone predictions
+/standalone_results/*
+!/standalone_results/.gitkeep
+__pycache__/
+*.py[cod]
