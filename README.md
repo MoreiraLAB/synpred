@@ -19,8 +19,9 @@
 The scientific standalone is portable and requires no hardcoded server paths.
 
 1. Create the environment with `bash scripts/create_standalone_env.sh`.
-2. Place the separately distributed models in `standalone_models`, or set
-   `SYNPRED_MODEL_DIR`.
+2. Download the released model bundle from the
+   [MoreiraLAB SYNpred resource page](https://www.moreiralab.com/resources/synpred/)
+   and place it in `standalone_models`, or set `SYNPRED_MODEL_DIR`.
 3. Run `python standalone_deploy_model.py standalone_example.csv`.
 4. Inspect `standalone_results/standalone_example_prediction.csv`.
 

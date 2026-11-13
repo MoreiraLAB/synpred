@@ -11,7 +11,10 @@ The drug columns contain SMILES strings. See `standalone_example.csv`.
 ## Model bundle
 
 The pretrained models are distributed separately because they are too
-large for GitHub. The expected layout is:
+large for GitHub. Download the released bundle from the
+[MoreiraLAB SYNpred resource page](https://www.moreiralab.com/resources/synpred/).
+
+The expected layout is:
 
 - `standalone_models/ML_models`: 36 `.pkl` estimators
 - `standalone_models/DL_models`: 24 individual and 6 ensemble `.h5` models
