@@ -1,75 +1,187 @@
-# SynPred
-*Full Machine Learning Pipeline for the Synpred prediction and Stand-alone deployment*
-<p>
-<b>Background</b>: In cancer research, high-throughput screening technologies produce large amounts of multiomics data from different populations and cell types. However, analysis of such data encounters difficulties due to disease heterogeneity, further exacerbated by human biological complexity and genomic variability. The specific profile of cancer as a disease (or, more realistically, a set of diseases) urges the development of approaches that maximize the effect while minimizing the dosage of drugs. Now is the time to redefine the approach to drug discovery, bringing an Artificial Intelligence-powered informational view that integrates the relevant scientific fields and explores new territories.
-</p>
-<p>
-<b>Results</b>: Here, we show SYNPRED, an interdisciplinary approach that leverages specifically designed ensembles of AI algorithms, links omics and biophysical traits to predict anticancer drug synergy. It uses five reference models (Bliss, Highest Single Agent, Loewe, Zero Interaction Potency and Combination Sensitivity Score), which, coupled with AI algorithms, allowed us to attain the ones with the best predictive performance and pinpoint the most appropriate reference model for synergy prediction, often overlooked in similar studies. By using an independent test set, SYNPRED exhibits state-of-the-art performance metrics either in the classification (accuracy – 0.85, precision – 0.91, recall – 0.90, AUROC – 0.80, and F1-score - 0.91) or in the regression models, mainly when using the Combination Sensitivity Score synergy reference model (RMSE – 11.07, MSE – 122.61, Pearson – 0.86, MAE – 7.43, Spearman – 0.87). Moreover, data interpretability was achieved by deploying the most current and robust feature importance approaches. A simple web-based application was constructed, allowing easy access by non-expert researchers.
-</p>
-<p>
-<b>Conclusions</b> : The performance of SYNPRED rivals that of the existing methods that tackle the same problem, yielding unbiased results trained with one of the most comprehensive datasets available (NCI-ALMANAC). The leveraging of different reference models allowed deeper insights into which of them can be more appropriately used for synergy prediction. The Combination Sensitivity Score clearly stood out with improved performance among the full scope of surveyed approaches and synergy reference models. Furthermore, SYNPRED takes a particular focus on data interpretability, which has been in the spotlight lately when using the most advanced AI techniques. 
-</p>
+# SYNpred
+
+**Prediction of anticancer drug combination effects using multiple synergy metrics and ensemble learning.**
+
+SYNpred combines drug molecular descriptors with cell-line molecular features to predict
+combination effects across six outputs: **Full-agreement, Bliss, ZIP, HSA, Loewe and CSS**.
+The released inference workflow uses 36 machine-learning estimators, 24 individual
+deep-learning models and 6 ensemble models.
+
 <p align="center">
-<img src="graphical_abstract.png" alt="drawing" width="500" height ="600"/>
+  <img src="graphical_abstract.png" alt="SYNpred graphical abstract" width="560">
 </p>
 
+## Quick start
 
-## Standalone inference
+Clone the repository:
 
-The scientific standalone is portable and requires no hardcoded server paths.
+```bash
+git clone https://github.com/MoreiraLAB/synpred.git
+cd synpred
+```
 
-1. Create the environment with `bash scripts/create_standalone_env.sh`.
-2. Download the released model bundle from the
-   [MoreiraLAB SYNpred resource page](https://www.moreiralab.com/resources/synpred/)
-   and place it in `standalone_models`, or set `SYNPRED_MODEL_DIR`.
-3. Run `python standalone_deploy_model.py standalone_example.csv`.
-4. Inspect `standalone_results/standalone_example_prediction.csv`.
+Create the validated environment:
 
-The required columns are `Cell`, `Drug1` and `Drug2`. See
-[`docs/STANDALONE.md`](docs/STANDALONE.md) for the validated versions,
-model layout, output schema and tests.
+```bash
+bash scripts/create_standalone_env.sh
+conda activate "$HOME/.conda/envs/synpred-standalone"
+```
 
-**Changes for pipeline replication**
+Download the released pretrained models from the
+[MoreiraLAB SYNpred resource page](https://www.moreiralab.com/resources/synpred/)
+and arrange them as:
 
-After downloading/cloning this repository, there are still some changes to be made if you wish to replicate the full pipeline of SynPred.
-1. At `synpred_variables.py`, change the variable `DEFAULT_LOCATION` to the location where you will be running your files
-2. If the folders were not automatically downloaded, the user needs to create the folders, on the same location as the scripts, with the following names:
-	- CCLE
-	- datasets
-	- evaluation_summary
-	- redeployment_variables
-	- resources
-	- saved_model
-	- support
-	- train_log
-	- split_tables
-	- saved_model
-3. Some of the files required are not available on this page as either they are too large or were developed by a third party. Particularly, the CCLE subsets, can be downloaded at CCLE website, and should go on the CCLE folder. There are 7 files required, please check file `support/CCLE_log_file.csv` to see which files are required for the full SynPred deployment. These files should have the same names as indicated in column `File_name` of the log file and go into `CCLE` folder. Furthermore, the user is also required to have the `DRUGCOMB` dataset at the location and name `datasets/drug_comb.csv`. Finally, the user should change the `datasets/example.csv` file to the file with the combinations, with the same format and columns as advised.
+```text
+standalone_models/
+├── ML_models/    # 36 .pkl estimators
+└── DL_models/    # 24 individual + 6 ensemble .h5 models
+```
 
-**Deploy the SynPred pipeline**
+Run the included example:
 
-After performing the changes previously pointed and properly installing and setting up the environment, these scripts should simply run without requiring changes.
-1. `synpred_variables.py` - Most of the variables are stored in here (paths, table variables, etc).
-2. `synpred_support_functions.py` - Several functions that will be present in more than one script.
-3. `synpred_process_drugcomb.py` - Process the input *DrugComb* dataset for the upcoming steps.
-4. `synpred_merge_drug_features.py` - Join the drug features to the dataset.
-5. `synpred_CCLE_filter.py` - Run this to generate CCLE subsets. Excludes only the features with 0 variance.
-6. `synpred_edit_dataset.py` - Start by editing the dataset to generate the full-agreement class and generate the several different splits.
-	Input and output files at the "datasets" folder.
-7. `synpred_generate_final_datasets.py` - Run this script to generate dimensionality reduction (PCA) on the CCLE subsets. This also generates the dataset split combinations with the different pre-processings (missing values: drop or replace with 0; dimensionality reduction: PCA or autoencoder).
-8. `synpred_keras.py`- Neural network to be run with keras/tensorflow. To be called from the command line or script 9.
-9. `synpred_gridsearch_keras.py` - Run the gridsearch on the `synpred_keras.py`. Outputs to "evaluation_summary" folder. This makes use of only 10% of the train dataset.
-10. `synpred_ML_gridsearch.py` - Run the gridsearch for the ML methods that do not involve Keras on 50% of the training set.
-11. `synpred_process_gridsearch.py` - Process the gridsearch results to yield the best parameters.
-12. `synpred_keras_final.py` - Neural network with keras/tensorflow after gridsearch. To be called from the command line or script 14.
-13. `synpred_best_keras_final.py` - Run and save the best keras models.
-14. `synpred_ML.py` - Run the best ML methods that do not involve Keras on the full training set, with the best parameters from script 11. Save the best models. 
-15. `synpred_ensemble_gridsearch.py` - Test several ensemble methods, namely, several Keras neural network.
-16. `synpred_ensemble_final.py` - Run the best ensemble model with Keras.
+```bash
+export SYNPRED_MODEL_DIR="$PWD/standalone_models"
+python standalone_deploy_model.py standalone_example.csv
+```
 
-**Please cite:**
+Predictions are written to:
 
-António J. Preto, Pedro Matos-Filipe, Joana Mourão and Irina S. Moreira
+```text
+standalone_results/standalone_example_prediction.csv
+```
 
-**SYNPRED: Prediction of Drug Combination Effects in Cancer using Different Synergy Metrics and Ensemble Learning**, *GigaScience*, Volume 11, 2022, giac087, https://doi.org/10.1093/gigascience/giac087
+## Input data
 
+Input must be a comma-separated CSV with these columns:
+
+```text
+Cell,Drug1,Drug2
+```
+
+- `Cell`: cell-line identifier represented in the bundled mapping and PCA feature tables.
+- `Drug1`, `Drug2`: SMILES strings for the two compounds.
+
+See [`standalone_example.csv`](standalone_example.csv) for a valid input example.
+
+## Output
+
+The prediction table contains the original input and:
+
+- `Full-agreement`
+- `Bliss`
+- `ZIP`
+- `HSA`
+- `Loewe`
+- `CSS`
+- `Synergy Votes`
+
+`Synergy Votes` is the number of SYNpred outputs classified as synergistic according to
+the thresholds implemented in the released model.
+
+## Installation
+
+The validated standalone environment uses:
+
+| Package | Version |
+|---|---:|
+| Python | 3.8.2 |
+| NumPy | 1.20.3 |
+| SciPy | 1.6.3 |
+| Pandas | 1.2.5 |
+| scikit-learn | 0.24.2 |
+| TensorFlow | 2.3.1 |
+| h5py | 2.10.0 |
+| XGBoost | 1.4.2 |
+| RDKit | 2021.09.3 |
+| Mordred | 1.2.0 |
+
+The complete pinned dependency list is available in
+[`requirements-standalone.txt`](requirements-standalone.txt). A custom Conda
+environment location can be passed to the setup script:
+
+```bash
+bash scripts/create_standalone_env.sh /path/to/environment
+```
+
+## Models
+
+The pretrained model files are distributed separately because they are too large for GitHub.
+By default, SYNpred reads models from `standalone_models`. An alternative location can be
+configured with:
+
+```bash
+export SYNPRED_MODEL_DIR=/absolute/path/to/standalone_models
+```
+
+The expected bundle contains:
+
+- 36 machine-learning estimators in `ML_models/`;
+- 24 individual neural-network models in `DL_models/`;
+- 6 final ensemble models in `DL_models/`.
+
+## Tests
+
+Run the standalone tests with:
+
+```bash
+export SYNPRED_MODEL_DIR="$PWD/standalone_models"
+python -m unittest -v tests.test_standalone
+```
+
+The tests validate:
+
+- generation of a complete `1 x 1347` feature matrix;
+- absence of non-finite feature values;
+- presence of all released model files;
+- structure and numerical validity of an end-to-end prediction output.
+
+Additional details are provided in [`docs/STANDALONE.md`](docs/STANDALONE.md).
+
+## Training pipeline
+
+The repository also contains the original data-processing, training, grid-search and
+evaluation scripts used to build SYNpred. Re-running model development requires external
+DrugComb and CCLE data in addition to the files distributed in this repository.
+
+The principal stages are:
+
+1. process DrugComb combinations and molecular features;
+2. prepare and reduce CCLE molecular features;
+3. generate training and evaluation splits;
+4. train classical machine-learning and neural-network models;
+5. build the final metric-specific ensembles.
+
+The standalone inference workflow above does not require retraining.
+
+## Repository structure
+
+```text
+standalone_deploy_model.py        Standalone inference entry point
+standalone_feature_extraction.py  Drug and cell-line feature generation
+standalone_variables.py           Portable model and data configuration
+standalone_example.csv            Example input
+resources/                         Bundled mappings and feature resources
+scripts/create_standalone_env.sh  Reproducible environment setup
+tests/                             Standalone validation tests
+docs/STANDALONE.md                 Detailed standalone documentation
+```
+
+## Citation
+
+If you use SYNpred, please cite:
+
+> António J. Preto, Pedro Matos-Filipe, Joana Mourão, and Irina S. Moreira.
+> **SYNpred: Prediction of Drug Combination Effects in Cancer using Different
+> Synergy Metrics and Ensemble Learning.**
+> *GigaScience* 11 (2022): giac087.
+> https://doi.org/10.1093/gigascience/giac087
+
+## Versioning
+
+`main` is the canonical maintained branch. For reproducible analyses, record the
+commit SHA or release tag used.
+
+## License
+
+SYNpred is distributed under the
+[GNU General Public License v3.0](LICENSE).
