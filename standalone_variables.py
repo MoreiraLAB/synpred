@@ -3,38 +3,8 @@ List all usable variables
 """
 
 
-def temporary_files(input_run_name, now, mode = "normal"):
-
-    """
-    Website intermediate files names
-    """
-    email_adress = "membraneproteindimers@gmail.com"
-    ip_address = "83.240.200.109"
-    port_adress = "2000"
-    web_address = "http://" + ip_address + ":" + port_adress
-    if mode == "normal":
-        current_time = "_".join([str(now.year), str(now.month), str(now.day), str(now.hour), str(now.minute), str(now.second)])
-    else:
-        name = input_run_name
-        current_time = now
-    name = input_run_name
-    folder_name = UPLOAD_FOLDER + "/" + current_time
-    pdb_loc = folder_name + "/" + name
-    page_name = current_time + "_" + name +  ".html"
-    holder_page = current_time + "_holder_page_" + name +  ".html"
-    output_csv = folder_name + "/final_results_" + name + ".csv"
-    input_csv = UPLOAD_FOLDER + "/" + current_time + "/prediction_results.csv"
-    flask_csv_name = "uploads/" + current_time + "/final_results_" + name + ".csv"
-    email_message = "Your SynPred run is being processed, the results will be available at: " + web_address + "/upload/" + page_name + \
-                        ". Depending on your input files, it might take different amounts of time. Your results will be erased from our server after two weeks."
-    email_message_final = "Your SpotONE run has been completed, the results are available at: " + web_address + "/upload/" + page_name
-    web_link = web_address + "/upload/" + page_name
-    string_variables = UPLOAD_FOLDER + "/" + current_time + "/variables.txt"
-    return {"now": now, "current_time": current_time, "simple_name": name, "folder_name": folder_name,
-            "page_name": page_name, "output_csv": output_csv, "flask_csv_name": flask_csv_name,
-             "name": name, "pdb_loc": pdb_loc, "email_message": email_message,
-            "string_variables": string_variables, "holder_page": holder_page, "web_link": web_link,
-            "final_message": email_message_final}
+import os
+from pathlib import Path
 
 def process_cells_file(input_file, mode = "dropdown", \
                         target_column = "", input_cell_type = ""):
@@ -59,27 +29,26 @@ def process_cells_file(input_file, mode = "dropdown", \
         return output_list
 
 """
-Email configuration settings
-"""
-BOX_PORT_EMAIL = 465
-SMTP_SERVER = "smtp.gmail.com"
-SENDER_EMAIL = "membraneproteindimers@gmail.com"
-SENDER_EMAIL_PASSWORD = 'mensa_test'
-
-"""
 Folder paths
 """
-HOME = "/storage/agomes/synpred_web"
-SYSTEM_SEP = "/"
-TEMPLATES = HOME + SYSTEM_SEP + "templates"
-UPLOAD_FOLDER = HOME + SYSTEM_SEP + "uploads"
-ONLY_UPLOAD_FOLDER = "uploads"
+HOME = str(Path(__file__).resolve().parent)
+SYSTEM_SEP = os.sep
+
 SUPPORT_FOLDER = "support"
 RESOURCES_FOLDER = "resources"
 DATA_FOLDER = "data"
-GRAPH_STATIC_FOLDER = HOME + SYSTEM_SEP + "static/img/temp_graph"
-ML_MODELS_FOLDER = HOME + SYSTEM_SEP + RESOURCES_FOLDER + SYSTEM_SEP + "ML_models"
-DL_MODELS_FOLDER = HOME + SYSTEM_SEP + RESOURCES_FOLDER + SYSTEM_SEP + "DL_models"
+
+RESULTS_FOLDER = os.path.join(HOME, "standalone_results")
+
+MODEL_ROOT = Path(
+    os.environ.get(
+        "SYNPRED_MODEL_DIR",
+        str(Path(HOME) / "standalone_models")
+    )
+).expanduser().resolve()
+
+ML_MODELS_FOLDER = str(MODEL_ROOT / "ML_models")
+DL_MODELS_FOLDER = str(MODEL_ROOT / "DL_models")
 
 REFERENCE_MODELS_LIST = ["Full-agreement", "Bliss", "ZIP", "HSA", "Loewe","CSS"]
 MODELS_DICTIONARY = {

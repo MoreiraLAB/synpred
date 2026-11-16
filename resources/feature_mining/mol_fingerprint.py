@@ -11,6 +11,7 @@ __group_leader__ = "Irina S. Moreira"
 __project__ = "SYNPRED"
 
 import os
+from pathlib import Path
 import subprocess
 import sys
 from rdkit import Chem
@@ -41,10 +42,14 @@ def drug_features_extractor(molecule, drug_index = "B"):
 	Filters all features that returned stddev 0 during the making of the training dataset.
 	Outputs data as a simple list of scaled features (using sklearn scaler from construction of the training datset).
 	"""
-	head = pickle.load(open('/storage/agomes/synpred_web/resources/feature_mining/drug_features.pkl', 'rb'))
+	drug_features_path = Path(__file__).resolve().parent / "drug_features.pkl"
+	with drug_features_path.open("rb") as handle:
+	    head = pickle.load(handle)
 	finger_row = mordredCalc(molecule)[head]
 	reshaped = pd.DataFrame(finger_row.values.reshape(1,-1), columns = finger_row.index)
-	feature_scaler = pickle.load(open('/storage/agomes/synpred_web/resources/feature_mining/scaler_mordred.pkl', 'rb'))
+	scaler_path = Path(__file__).resolve().parent / "scaler_mordred.pkl"
+	with scaler_path.open("rb") as handle:
+	    feature_scaler = pickle.load(handle)
 	#if drug_index == "A":
 	mean_values = feature_scaler.mean_
 	var_values = feature_scaler.var_

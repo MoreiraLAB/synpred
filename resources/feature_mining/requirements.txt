@@ -1,0 +1,6 @@
+numpy==1.20.3
+pandas==1.2.5
+scikit-learn==0.24.2
+rdkit-pypi==2021.9.3
+networkx==2.5.1
+mordred==1.2.0

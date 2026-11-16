@@ -11,6 +11,7 @@ __group_leader__ = "Irina S. Moreira"
 __project__ = "SYNPRED"
 
 import pickle
+from pathlib import Path
 from sklearn.model_selection import train_test_split
 import pandas as pd
 from numpy.random import seed
@@ -123,12 +124,14 @@ def generate_voting_column(input_table):
     return voting_column
 
 input_file = sys.argv[1]
-opened_file = pd.read_csv(input_file, header = 0, sep = ";").drop_duplicates().reset_index(drop = True)
+opened_file = pd.read_csv(input_file, header = 0, sep = SEP).drop_duplicates().reset_index(drop = True)
 
 results_dataframe, drop_indexes = standalone_feature_extraction.generate_features_dataframe(opened_file)
 #print(results_dataframe)
 #sys.exit()
-prediction_loc = input_file.split(".")[0] + "_prediction.csv"
+results_dir = Path(__file__).resolve().parent / "standalone_results"
+results_dir.mkdir(parents=True, exist_ok=True)
+prediction_loc = str(results_dir / (Path(input_file).stem + "_prediction.csv"))
 
 predictions_table = predict_instances(results_dataframe)
 final_table = pd.concat([opened_file, predictions_table], axis = 1)

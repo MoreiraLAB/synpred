@@ -1,0 +1,6 @@
+name: synpred-standalone
+channels:
+  - defaults
+dependencies:
+  - python=3.8.2
+  - pip=23.0.1

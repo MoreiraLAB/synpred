@@ -14,35 +14,20 @@
 </p>
 
 
-**Prerequisites**
+## Standalone inference
 
-To properly run SynPred the user should setup an isolated Conda environment. Please follow the specifications below.
-1. `conda create --name synpred_env python=3.8.2` - There is no problem in changing the environment name, provided the user utilizes the same name onward. However, the user should use this Python version, as some packages (e.g. Tensorflow) do not have installation support with pip when this pipeline was constructed. 
-2. `conda activate synpred_env` - All the following steps should be performed in the established environment. 
+The scientific standalone is portable and requires no hardcoded server paths.
 
-Then, the user needs to install several packages, for which will require *administrative* permissions:
+1. Create the environment with `bash scripts/create_standalone_env.sh`.
+2. Download the released model bundle from the
+   [MoreiraLAB SYNpred resource page](https://www.moreiralab.com/resources/synpred/)
+   and place it in `standalone_models`, or set `SYNPRED_MODEL_DIR`.
+3. Run `python standalone_deploy_model.py standalone_example.csv`.
+4. Inspect `standalone_results/standalone_example_prediction.csv`.
 
-3. `conda install -c conda-forge rdkit` - Install rdkit for molecular feature extraction with mordred.
-4. `pip install pandas numpy rdkit-pypi` - Install useful packages.
-5. `pip install mordred` - Install mordred for feature extraction.
-6. `pip install pubchempy` - Install pubchempy to download SMILE from name.
-7. `pip install tensorflow==2.3.1` - Install this version of tensorflow.
-8. `pip install scikit-learn` - Scikit-learn is required at many steps of the pipeline. 
-9. `pip install xgboost`- The package to use the Extreme Gradient Boosting methods needs to be installed separately from scikit-learn.
-10. `pip install h5py`- Allows storage in h5 format.
-
-**Stand-alone Deployment**
-
-For the stand-alone development, the user will require the files in the folder `CCLE_processed`, which contains the CCLE features as processed in the paper. Furthermore, the user requires the pretrained models. These are too large for GitHub, as such, the user must download them at `http://www.moreiralab.com/resources/synpred`, at the `Stand-alone deployment section` and store them in a folder in the same location as the scripts, with the name `standalone_models`. Finally, the user must have performed environment setup and needs to run the standalone inside the activated environment.
-Regarding the scripts, the only change required should be in the `standalone_variables.py` script, in which the user should change the `HOME` variable into the folder path on his/her computer.
-
-Finally, the user must create (if not already cloned) a folder with the name `standalone_results` at the same folder of the scripts. 
-
-The way to run the SynPred stand-alone deployment is, after initializing the conda environment typing:
-
-`python standalone_deploy_model.py your_table_name.csv`
-
-The user can then check the features and results calculated at the `standalone_results` folder. The user was to be careful and avoid overwriting of the predictions when running the script with different input tables. To check an example of the input file, consult the `standalone_example.csv`, in the folder of the scripts. The names of the columns should be the same, as well as the content. 
+The required columns are `Cell`, `Drug1` and `Drug2`. See
+[`docs/STANDALONE.md`](docs/STANDALONE.md) for the validated versions,
+model layout, output schema and tests.
 
 **Changes for pipeline replication**
 
